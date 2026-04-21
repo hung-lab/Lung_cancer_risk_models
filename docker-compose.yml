@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: tkinter-app-dev
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: uv run python -m app.main
+
+  shell:
+    build: .
+    container_name: tkinter-app-shell
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XAUTHORITY=${XAUTHORITY}
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: /bin/bash

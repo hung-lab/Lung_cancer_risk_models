@@ -1,0 +1,135 @@
+# Ruff configuration for tkinter projects
+# See: https://docs.astral.sh/ruff/
+
+[tool.ruff]
+# Set line length (standard is 88, but can be adjusted)
+line-length = 88
+# Target Python version
+target-version = "py39"
+
+[tool.ruff.lint]
+# Enable selected rules
+# E: pycodestyle errors
+# W: pycodestyle warnings  
+# F: pyflakes
+# I: isort
+# B: flake8-bugbear
+# C4: flake8-comprehensions
+# UP: pyupgrade
+# A: flake8-builtins
+# ARG: flake8-unused-arguments
+# SIM: flake8-simplify
+# TCH: flake8-type-checking
+# PLC: pylint convention
+# PIE: pylint unnecessary
+# RET: pylint return
+# RUF: ruff-specific rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "A",   # flake8-builtins
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PLC", # pylint convention
+    "PIE", # pylint unnecessary
+    "RET", # pylint return
+    "RUF", # ruff-specific rules
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",   # line too long, handled by formatter
+    "B008",   # do not perform function calls in argument defaults
+    "W191",   # indentation contains tabs
+    "B904",   # Allow raising exceptions without from e, for HTTPException
+    "B006",   # mutable default argument for function or method
+    "C408",   # unnecessary-collection-call (allow {} for dicts)
+    "ARG001", # unused function argument - we use _ prefix for unused args
+    "ARG002", # unused method argument - we use _ prefix for unused args
+    "SIM108", # use ternary operator instead of if-else-block
+    "RUF012", # mutable class attribute should be annotated with `typing.ClassVar`
+    "RUF013", # PEP 484 prohibits implicit Optional
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore unused imports in __init__.py files
+"__init__.py" = ["F401"]
+
+# Ignore certain rules in tests
+"tests/**/*.py" = [
+    "ARG001",  # unused function argument in tests
+    "ARG002",  # unused method argument in tests
+    "PLR2004", # magic value used in comparison
+]
+
+# Ignore certain rules in scripts
+"scripts/**/*.py" = [
+    "ARG001",  # unused function argument in scripts
+]
+
+[tool.ruff.lint.pyupgrade]
+# Keep runtime typing for compatibility
+keep-runtime-typing = true
+
+[tool.ruff.lint.isort]
+# Configure import sorting
+known-first-party = ["app"]
+combine-as-imports = true
+split-on-trailing-comma = true
+force-single-line = false
+force-wrap-aliases = true
+
+[tool.ruff.lint.flake8-builtins]
+# Allow shadowing built-ins that are commonly used
+builtins-ignore = ["id", "type", "format"]
+
+[tool.ruff.lint.flake8-unused-arguments]
+# Allow unused arguments with underscore prefix
+allow-unused-args = true
+
+[tool.ruff.lint.flake8-type-checking]
+# Enable runtime type checking
+runtime-evaluated-base-classes = [
+    "customtkinter.CTk",
+    "tkinter.Tk",
+    "tkinter.Toplevel",
+]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Use 4 spaces for indentation
+indent-style = "space"
+
+# Trailing commas in multiline sequences
+skip-magic-trailing-comma = false
+
+# Line ending handling
+line-ending = "auto"
+
+# Respect magic trailing commas
+magic-trailing-comma = "preserve"
+
+[tool.ruff.lint.pylint]
+# Configure pylint-style rules
+max-args = 7
+max-returns = 6
+max-branches = 12
+max-statements = 50
+max-attributes = 7
+
+[tool.ruff.lint.pylint.convention]
+# Configure naming conventions
+good-names = ["i", "j", "k", "x", "y", "z", "ex", "Run", "_"]
+bad-names = ["foo", "bar", "baz", "data", "info", "doit"]
+
+[tool.ruff.lint.pylint.unnecessary]
+# Configure unnecessary rules
+allow-dunder-method-names = ["__init__", "__str__", "__repr__"]

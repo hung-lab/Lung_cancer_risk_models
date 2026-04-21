@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Platform to build"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - ubuntu # Fix: was 'linux' which never matched 'ubuntu-latest'
+          - windows
+          - macos
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: >-
+          ${{ fromJSON(
+            github.event_name == 'workflow_dispatch' &&
+            github.event.inputs.platform != 'all'
+              && format('["{0}-latest"]', github.event.inputs.platform)
+              || '["ubuntu-latest","windows-latest","macos-latest"]'
+          ) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Install pyinstaller
+        run: uv add pyinstaller
+
+      # Fix: rewritten as bash (was Python syntax in a bash run block)
+      # Fix: --add-data separator is ';' on Windows, ':' on Unix
+      - name: Build application (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          uv run pyinstaller \
+            --onefile \
+            --windowed \
+            --name=tkinter-app \
+            --add-data="src/app;src/app" \
+            --icon=assets/icon.ico \
+            src/app/main.py
+
+      - name: Build application (macOS)
+        if: matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          uv run pyinstaller \
+            --onefile \
+            --windowed \
+            --name=tkinter-app \
+            --add-data="src/app:src/app" \
+            --icon=assets/icon.icns \
+            src/app/main.py
+
+      - name: Build application (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          uv run pyinstaller \
+            --onefile \
+            --windowed \
+            --name=tkinter-app \
+            --add-data="src/app:src/app" \
+            --icon=assets/icon.png \
+            src/app/main.py
+
+      # Fix: upgraded upload-artifact from deprecated v3 to v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tkinter-app-${{ matrix.os }}
+          path: dist/
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+
+    steps:
+      # Fix: upgraded download-artifact from deprecated v3 to v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          cp -r tkinter-app-*/* release/
+          tar -czf tkinter-app-release.tar.gz release/
+
+      # Fix: replaced unmaintained upload-release-asset@v1 with GitHub CLI (pre-installed on all runners)
+      - name: Upload release assets
+        run: gh release upload ${{ github.event.release.tag_name }} tkinter-app-release.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
