@@ -1,33 +1,38 @@
 name: Release
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
-    inputs:
-      platform:
-        description: "Platform to build"
-        required: true
-        default: "all"
-        type: choice
-        options:
-          - all
-          - ubuntu # Fix: was 'linux' which never matched 'ubuntu-latest'
-          - windows
-          - macos
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: simple
+          target-branch: main
+
   build:
-    runs-on: ${{ matrix.os }}
+    needs: release
+    if: needs.release.outputs.release_created == 'true'
     strategy:
       matrix:
-        os: >-
-          ${{ fromJSON(
-            github.event_name == 'workflow_dispatch' &&
-            github.event.inputs.platform != 'all'
-              && format('["{0}-latest"]', github.event.inputs.platform)
-              || '["ubuntu-latest","windows-latest","macos-latest"]'
-          ) }}
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +44,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v2
-        with:
-          version: "latest"
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -48,9 +51,7 @@ jobs:
       - name: Install pyinstaller
         run: uv add pyinstaller
 
-      # Fix: rewritten as bash (was Python syntax in a bash run block)
-      # Fix: --add-data separator is ';' on Windows, ':' on Unix
-      - name: Build application (Windows)
+      - name: Build (Windows)
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
@@ -62,7 +63,7 @@ jobs:
             --icon=assets/icon.ico \
             src/app/main.py
 
-      - name: Build application (macOS)
+      - name: Build (macOS)
         if: matrix.os == 'macos-latest'
         shell: bash
         run: |
@@ -74,7 +75,7 @@ jobs:
             --icon=assets/icon.icns \
             src/app/main.py
 
-      - name: Build application (Linux)
+      - name: Build (Linux)
         if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
@@ -86,32 +87,8 @@ jobs:
             --icon=assets/icon.png \
             src/app/main.py
 
-      # Fix: upgraded upload-artifact from deprecated v3 to v4
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tkinter-app-${{ matrix.os }}
           path: dist/
-          retention-days: 30
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'release'
-
-    steps:
-      # Fix: upgraded download-artifact from deprecated v3 to v4
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-
-      - name: Create release archive
-        run: |
-          mkdir -p release
-          cp -r tkinter-app-*/* release/
-          tar -czf tkinter-app-release.tar.gz release/
-
-      # Fix: replaced unmaintained upload-release-asset@v1 with GitHub CLI (pre-installed on all runners)
-      - name: Upload release assets
-        run: gh release upload ${{ github.event.release.tag_name }} tkinter-app-release.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
