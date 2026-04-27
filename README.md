@@ -83,14 +83,21 @@ tkinter-app/
 ├── src/
 │   └── app/
 │       ├── __init__.py
+│       ├── assets/         # Icons, logos, images
+│       ├── config/         # Config files, global settings
+│       │   ├── __init__.py
+│       │   └── settings.py
 │       ├── main.py         # Application entry point
 │       ├── models.py       # Data models
 │       ├── views/          # UI components
 │       │   ├── __init__.py
-│       │   └── main_window.py
+│           └── components/ # Reusable UI components
+│           └── dialogs/    # Reusable UI dialogs
+│       │   └── main_view.py
 │       └── controllers/    # Business logic
 │           ├── __init__.py
-│           └── main_controller.py
+│           └── app_controller.py
+│           └── base_controller.py
 ├── tests/
 ├── scripts/
 │   └── build.py           # Build script for distribution
@@ -100,7 +107,6 @@ tkinter-app/
 ├── docker-compose.yml    # Docker services
 ├── .dockerignore         # Docker ignore file
 ├── .gitignore            # Git ignore file
-├── ruff.toml            # Ruff configuration
 └── README.md             # This file
 ```
 

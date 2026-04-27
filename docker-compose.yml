@@ -3,14 +3,14 @@ services:
     build: .
     container_name: tkinter-app-dev
     volumes:
-      - .:/app
+      - ./src:/app/src
+      - ./scripts:/app/scripts
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=${XAUTHORITY}
     network_mode: host
     stdin_open: true
     tty: true
-    command: uv run python -m app.main
 
   shell:
     build: .

@@ -125,3 +125,4 @@ Thumbs.db
 # Project specific
 uv.lock
 requirements.txt
+src/sybil_example/
