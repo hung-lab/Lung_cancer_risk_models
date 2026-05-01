@@ -88,7 +88,11 @@ class RunningOverlay:
     def append_log(self, message: str, level: str = "INFO") -> None:
         """Append a timestamped log line to the live feed on the overlay."""
         prefix, tag = LEVEL_PREFIX.get(level.upper(), ("•", "info"))
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        timestamp = (
+            datetime.datetime.now(datetime.timezone.utc)
+            .astimezone()
+            .strftime("%H:%M:%S")
+        )
 
         self._log_box.configure(state="normal")
 
@@ -170,7 +174,7 @@ class RunningOverlay:
 
         # Configure per-level colour tags
         for level, colour in LEVEL_COLOURS.items():
-            self._log_box.tag_config(level.lower(), foreground=colour)
+            self._log_box.tag_config(level.lower(), foreground=colour[0])
 
     def _tick(self) -> None:
         """Increment the elapsed-time counter every second while visible."""

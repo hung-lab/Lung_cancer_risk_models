@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 
 import customtkinter as ctk
 
+from app.config.settings import ERROR_COLOUR
 from app.utils.helpers import center_window
 from app.utils.ui_config import SPACE_SM, SPACE_XL, SPACE_XS
 
@@ -60,7 +61,7 @@ class SplashScreen:
     # ── build ──────────────────────────────────────────────────────────────
 
     def _build(self) -> None:
-        outer = ctk.CTkFrame(self._win, fg_color=("gray95", "#1A1F2E"))
+        outer = ctk.CTkFrame(self._win)
         outer.pack(fill="both", expand=True)
 
         inner = ctk.CTkFrame(outer, fg_color="transparent")
@@ -131,7 +132,7 @@ class SplashScreen:
 
         self._status.configure(
             text=f"Error: {message}",
-            text_color=("#C62828", "#f7c485"),
+            text_color=ERROR_COLOUR,
         )
 
         ctk.CTkButton(

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from app.config.settings import PROJECT_ROOT
+
 
 @dataclass
 class SybilInputData:
@@ -14,7 +16,8 @@ class SybilInputData:
     smoking_intensity: float
     smoking_quit_time: float
     smoking_status: int
-    ct_scan_dir: str
+    ct_scan_dir: str | None = PROJECT_ROOT
+    six_year_risk: float | None = None
 
 
 @dataclass

@@ -1,23 +1,31 @@
-import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-if getattr(sys, "frozen", False):
-    BASE_PATH = Path(sys._MEIPASS)
-else:
-    BASE_PATH = PROJECT_ROOT
 
 __version__ = "1.0.0"
 __build_date__ = "2026-04-28"
 __author__ = "Wisam Al Abed"
 
+PRIMARY_LIGHT = "#1e7f8c"
+PRIMARY_DARK = "#2b3d4f"
+ACCENT_LIGHT = "#cc0033"
+ACCENT_DARK = "#ffb38a"
+
+BORDER_LIGHT = "#20343a"
+BORDER_DARK = "#c8d2e0"
+
+INFO_COLOUR = ("#3a7bd5", "#bfeaf2")
+SUCCESS_COLOUR = (PRIMARY_LIGHT, "#9BE7B1")
+BORDER_COLOUR = (BORDER_LIGHT, BORDER_DARK)
+ERROR_COLOUR = (ACCENT_LIGHT, ACCENT_DARK)
+WARNING_COLOUR = ("#FF5a5f", ACCENT_DARK)
+
 # Colour per log level — mirrors LogPanel's palette
-LEVEL_COLOURS: dict[str, str] = {
-    "INFO": "#569fd3",
-    "SUCCESS": "#bed600",
-    "WARNING": "#ec7a08",
-    "ERROR": "#cc0033",
+LEVEL_COLOURS: dict[str, tuple[str, str]] = {
+    "INFO": INFO_COLOUR,
+    "SUCCESS": SUCCESS_COLOUR,
+    "WARNING": WARNING_COLOUR,
+    "ERROR": ERROR_COLOUR,
 }
 LEVEL_PREFIX: dict[str, str] = {
     "INFO": ("i", "info"),
@@ -25,10 +33,3 @@ LEVEL_PREFIX: dict[str, str] = {
     "WARNING": ("⚠", "warning"),
     "ERROR": ("✗", "error"),
 }
-
-PRIMARY_BLUE = "#00467f"
-SECONDARY_BLUE = "#569fd3"
-RED_ACCENT = "#cc0033"
-ORANGE_ACCENT = "#ec7a08"
-
-_ERROR_COLOUR = (RED_ACCENT, ORANGE_ACCENT)

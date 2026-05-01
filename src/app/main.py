@@ -1,14 +1,12 @@
 """Application entry point."""
 
-import os
-
 import customtkinter as ctk
 
 from app.controllers.app_controller import AppController
 from app.controllers.menubar_controller import MenuBarController
 from app.controllers.sybil_controller import SybilController
 from app.utils.event_bus import EventBus
-from app.utils.helpers import center_window, resource_path
+from app.utils.helpers import center_window, get_mono_font, resource_path
 from app.views.components.log_panel import LogPanel
 from app.views.components.menu_bar import MenuBar
 from app.views.components.split_view import SplitView
@@ -21,14 +19,15 @@ def main() -> None:
 
     ctk.set_appearance_mode("System")
 
-    full_theme_path = resource_path("assets", "themes", "BlueEmber.json")
+    full_theme_path = resource_path("assets", "themes", "AccessibleContrast.json")
     ctk.set_default_color_theme(full_theme_path)
 
     root = ctk.CTk()
+    root.option_add("*Font", get_mono_font())
     root.title("CustomTkinter App")
     center_window(root, fraction=0.9)
 
-    # Hide the main window until the model has finished loading.
+    # Hide the main window until the Sybil model has finished loading.
     root.withdraw()
 
     bus = EventBus(root)
@@ -50,7 +49,8 @@ def main() -> None:
     app_ctrl = AppController(root, bus, split, sybil_form)
 
     menubar_ctrl = MenuBarController(root, bus, app_ctrl)
-    MenuBar(root, menubar_ctrl)
+    menu = MenuBar(root, menubar_ctrl)
+    menubar_ctrl.set_menu_bar(menu)
 
     # ── Splash screen — shown before the main window, closes on model_ready
     # Must be created AFTER all bus subscribers are registered so splash

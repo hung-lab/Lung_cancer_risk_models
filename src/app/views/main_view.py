@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import customtkinter as ctk
 
-from app.config.settings import _ERROR_COLOUR, PRIMARY_BLUE, SECONDARY_BLUE
-from app.utils.helpers import open_url, resolve_color
+from app.config.settings import ACCENT_DARK, ERROR_COLOUR, PRIMARY_LIGHT
+from app.utils.helpers import open_url
 from app.utils.ui_config import CARD_PAD_X, CARD_PAD_Y, SPACE_MD, SPACE_XS
 
 
@@ -66,7 +66,7 @@ class MainWindow:
             tag = f"link_{url}"  # unique per URL, not per label
             text._textbox.tag_config(
                 tag,
-                foreground=SECONDARY_BLUE,
+                foreground="#FF5a5f",
                 underline=True,
             )  # config BEFORE insert
             text.insert("end", label, tag)
@@ -124,6 +124,6 @@ class MainWindow:
             wraplength=520,
             justify="left",
             anchor="w",
-            text_color=_ERROR_COLOUR,
+            text_color=ERROR_COLOUR,
             font=ctk.CTkFont(size=12),
         ).grid(row=1, column=0, sticky="w", padx=SPACE_MD, pady=(SPACE_XS, SPACE_MD))

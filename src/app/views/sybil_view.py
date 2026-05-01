@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 import customtkinter as ctk
 
-from app.config.settings import _ERROR_COLOUR
+from app.config.settings import BORDER_COLOUR, ERROR_COLOUR
 from app.models.patient_model import SybilInputData
 from app.utils.event_bus import AppEvent
 from app.utils.ui_config import (
@@ -77,6 +77,7 @@ class SybilView:
         self._smoking_quit_time_var = tk.StringVar(value="0")
         self._smoking_status_var = tk.BooleanVar(value=False)
         self._ct_dir_var = tk.StringVar(value="No folder selected")
+        self._six_year_risk = tk.StringVar()
 
         # ── validation error vars ─────────────────────────────────────────
         self._age_error_var = tk.StringVar()
@@ -85,6 +86,7 @@ class SybilView:
         self._smoking_duration_error_var = tk.StringVar()
         self._smoking_intensity_error_var = tk.StringVar()
         self._smoking_quit_time_error_var = tk.StringVar()
+        self._six_year_risk_error_var = tk.StringVar()
 
         self.run_button: ctk.CTkButton | None = None
         self._results_frame: ctk.CTkFrame | None = None
@@ -134,7 +136,7 @@ class SybilView:
 
         # results card (hidden until a run completes)
         self._results_frame = ctk.CTkFrame(
-            self.container, border_color=_ERROR_COLOUR, border_width=3
+            self.container, border_color=ERROR_COLOUR, border_width=3
         )
         self._results_label = ctk.CTkLabel(
             self._results_frame,
@@ -169,7 +171,7 @@ class SybilView:
         frame = ctk.CTkFrame(self.container)
         frame.pack(fill="x", pady=CARD_PAD_Y, padx=CARD_PAD_X)
 
-        ctk.CTkLabel(frame, text=title, font=ctk.CTkFont(size=13, weight="bold")).pack(
+        ctk.CTkLabel(frame, text=title, font=ctk.CTkFont(size=16, weight="bold")).pack(
             anchor="w", padx=SECTION_GAP_BOTTOM, pady=(SPACE_SM, SPACE_XS)
         )
 
@@ -255,10 +257,17 @@ class SybilView:
         error = ctk.CTkLabel(
             err_row,
             textvariable=self._ct_error_var,
-            text_color=_ERROR_COLOUR,
+            text_color=ERROR_COLOUR,
             font=ctk.CTkFont(size=12),
         )
         error.grid(row=0, column=1, sticky="w", pady=(SPACE_XS, 0))
+        self._entry(
+            p,
+            "risk",
+            "6-year Risk Sybil",
+            self._six_year_risk,
+            self._six_year_risk_error_var,
+        )
 
     # ─────────────────────────────── WIDGET FACTORIES ────────────────────
 
@@ -288,7 +297,7 @@ class SybilView:
             error = ctk.CTkLabel(
                 r,
                 textvariable=error_var,
-                text_color=_ERROR_COLOUR,
+                text_color=ERROR_COLOUR,
                 font=ctk.CTkFont(size=12),
             )
             error.grid(row=1, column=1, sticky="w", pady=(2, SPACE_XS))
@@ -393,6 +402,7 @@ class SybilView:
         self._smoking_quit_time_var.set("0")
         self._smoking_status_var.set(False)
         self._ct_dir_var.set("No folder selected")
+        self._six_year_risk.set("")
         self._clear_errors()
         self._results_frame.pack_forget()
 
@@ -403,6 +413,7 @@ class SybilView:
         self._smoking_duration_error_var.set("")
         self._smoking_intensity_error_var.set("")
         self._smoking_quit_time_error_var.set("")
+        self._six_year_risk_error_var.set("")
 
     # ─────────────────────────────── VALIDATION ──────────────────────────
 
@@ -413,9 +424,9 @@ class SybilView:
 
         has_error = bool(error_var.get().strip())
         if has_error:
-            entry.configure(border_color=_ERROR_COLOUR)
+            entry.configure(border_color=ERROR_COLOUR)
         else:
-            entry.configure(border_color=("#003366", "#374151"))
+            entry.configure(border_color=BORDER_COLOUR)
 
     def _collect(self) -> SybilInputData:
 
@@ -461,10 +472,22 @@ class SybilView:
             0,
             200,
         )
+        six_year_risk = None
+        six_year_risk_errors = []
+        six_year_risk_val = self._six_year_risk.get().strip()
+        if six_year_risk_val:
+            six_year_risk, six_year_risk_errors = validate_field(
+                "risk",
+                self._six_year_risk,
+                self._six_year_risk_error_var,
+                "6-year Risk Sybil",
+                0.0,
+                1.0,
+            )
 
         # CT scan special case
         ct_errors = []
-        if self._ct_dir_var.get() == "No folder selected":
+        if not six_year_risk_val and self._ct_dir_var.get() == "No folder selected":
             ct_errors.append("CT folder is required")
 
         self._ct_error_var.set(
@@ -480,6 +503,7 @@ class SybilView:
             + smoking_intensity_errors
             + smoking_quit_errors
             + ct_errors
+            + six_year_risk_errors
         )
 
         if all_errors:
@@ -502,6 +526,7 @@ class SybilView:
             smoking_quit_time=smoking_quit,
             smoking_status=int(self._smoking_status_var.get()),
             ct_scan_dir=self._ct_dir_var.get(),
+            six_year_risk=six_year_risk,
         )
 
     # ─────────────────────────────── RESULTS ─────────────────────────────

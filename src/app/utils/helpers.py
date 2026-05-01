@@ -4,8 +4,29 @@ import webbrowser
 from pathlib import Path
 
 import customtkinter as ctk
+import tkinter.font as tkfont
 
 from app.config.settings import PROJECT_ROOT
+
+
+def get_mono_font(size=14):
+    available = set(tkfont.families())
+
+    candidates = [
+        "Cascadia Code",
+        "SF Mono",
+        "Menlo",
+        "Consolas",
+        "DejaVu Sans Mono",
+        "Liberation Mono",
+        "Courier New",
+    ]
+
+    for font in candidates:
+        if font in available:
+            return ctk.CTkFont(family=font, size=size)
+
+    return ctk.CTkFont(family="Courier New", size=size)
 
 
 def resolve_color(light: str, dark: str) -> str:

@@ -18,6 +18,12 @@ class AppController(BaseController):
             if event.message == "log_panel":
                 self._split.toggle_right_panel()
 
+        elif event.type == "ui_state":
+            if event.message == "running":
+                self._split.lock_tabs()
+            elif event.message in ("idle", "error"):
+                self._split.unlock_tabs()
+
         elif event.type == "action":
             if event.message == "new_run":
                 self._form.reset()

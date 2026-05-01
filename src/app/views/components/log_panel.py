@@ -1,10 +1,10 @@
 import datetime
 
-from app.utils.ui_config import SPACE_MD, SPACE_SM, SPACE_XS
 import customtkinter as ctk
 
 from app.config.settings import LEVEL_COLOURS, LEVEL_PREFIX
 from app.utils.event_bus import AppEvent
+from app.utils.ui_config import SPACE_MD, SPACE_SM, SPACE_XS
 
 
 class LogPanel:
@@ -46,13 +46,16 @@ class LogPanel:
 
         # Tags
         # Configure per-level colour tags
-        for level, colour in LEVEL_COLOURS.items():
-            self.box.tag_config(level.lower(), foreground=colour)
+        self.update_tag_colours(ctk.get_appearance_mode())
         self.box.tag_config("ts", foreground="#888888")
 
     def log(self, message: str, level: str = "INFO") -> None:
         prefix, tag = LEVEL_PREFIX.get(level.upper(), ("•", "info"))
-        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        timestamp = (
+            datetime.datetime.now(datetime.timezone.utc)
+            .astimezone()
+            .strftime("%H:%M:%S")
+        )
 
         self.box.configure(state="normal")
         self.box.insert("end", f"[{timestamp}] ", "ts")
@@ -65,6 +68,14 @@ class LogPanel:
         self.box.delete("1.0", "end")
         self.box.configure(state="disabled")
 
+    def update_tag_colours(self, mode: str):
+        for level, colours in LEVEL_COLOURS.items():
+            colour = colours[0] if mode == "Light" else colours[1]
+            self.box.tag_config(level.lower(), foreground=colour)
+
     def handle_event(self, event: AppEvent) -> None:
         if event.type == "log":
             self.log(event.message or "", event.level)
+
+        if event.type == "ui_theme":
+            self.update_tag_colours(event.message)

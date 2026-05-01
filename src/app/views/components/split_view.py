@@ -49,3 +49,9 @@ class SplitView:
         else:
             self.log_panel.grid()
         self._log_visible = not self._log_visible
+
+    def lock_tabs(self) -> None:
+        self.tabs._segmented_button.configure(state="disabled")
+
+    def unlock_tabs(self) -> None:
+        self.tabs._segmented_button.configure(state="normal")

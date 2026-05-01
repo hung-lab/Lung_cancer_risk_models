@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import sys
 import tkinter as tk
 from typing import TYPE_CHECKING
@@ -9,12 +10,12 @@ from typing import TYPE_CHECKING
 import customtkinter as ctk
 
 from app.config.settings import (
-    _ERROR_COLOUR,
+    ERROR_COLOUR,
     __author__,
     __build_date__,
     __version__,
 )
-from app.utils.ui_config import BUTTON_GAP, CARD_PAD_X, SPACE_LG, SPACE_MD, SPACE_SM
+from app.utils.ui_config import CARD_PAD_X, SPACE_MD, SPACE_SM
 from app.views.dialogs.info_dialog import InfoDialog
 
 if TYPE_CHECKING:
@@ -44,8 +45,7 @@ class MenuBar:
         _mod = "Command" if sys.platform == "darwin" else "Control"
         self.root.bind(f"<{_mod}-n>", lambda _e: self.start_a_new_run())
         self.root.bind(f"<{_mod}-q>", lambda _e: self.destroy())
-        self.root.bind(f"<{_mod}-1>", lambda _e: self.toggle_sidepanel())
-        self.root.bind(f"<{_mod}-2>", lambda _e: self.toggle_log_visibility())
+        self.root.bind(f"<{_mod}-1>", lambda _e: self.toggle_log_visibility())
 
     def _build_file_menu(self, menubar: tk.Menu) -> None:
         _acc = "Cmd" if sys.platform == "darwin" else "Ctrl"
@@ -69,14 +69,9 @@ class MenuBar:
         menu = tk.Menu(menubar, tearoff=0)
 
         menu.add_command(
-            label="Toggle Side Panel",
-            command=self.toggle_sidepanel,
-            accelerator=f"{_acc}+1",
-        )
-        menu.add_command(
             label="Toggle Activity Log",
             command=self.toggle_log_visibility,
-            accelerator=f"{_acc}+2",
+            accelerator=f"{_acc}+1",
         )
         menu.add_separator()
 
@@ -133,11 +128,8 @@ class MenuBar:
             text="Exit",
             width=100,
             command=self.controller.quit_app,
-            fg_color=_ERROR_COLOUR,
+            fg_color=ERROR_COLOUR,
         ).pack(side="left", padx=SPACE_SM)
-
-    def toggle_sidepanel(self) -> None:
-        self.controller.toggle_sidepanel()
 
     def toggle_log_visibility(self) -> None:
         self.controller.toggle_log()
@@ -171,26 +163,10 @@ class MenuBar:
             ),
         )
 
-
-# ──────────────────────────────────────────────── utility ──
-
-
-def _show_info_dialog(root: ctk.CTk, title: str, message: str) -> None:
-    """Display a simple modal information dialog."""
-    dialog = ctk.CTkToplevel(root)
-    dialog.title(title)
-    dialog.geometry("420x220")
-    dialog.resizable(False, False)
-    dialog.grab_set()
-    dialog.focus_force()
-
-    ctk.CTkLabel(
-        dialog,
-        text=message,
-        wraplength=380,
-        justify="left",
-    ).pack(padx=SPACE_LG, pady=(SPACE_LG, SPACE_MD), anchor="w")
-
-    ctk.CTkButton(dialog, text="OK", width=100, command=dialog.destroy).pack(
-        pady=(0, BUTTON_GAP)
-    )
+    def set_enabled(self, enabled: bool) -> None:
+        state = "normal" if enabled else "disabled"
+        menubar = self.root.cget("menu")
+        menu = self.root.nametowidget(menubar)
+        for i in range(menu.index("end") + 1):
+            with contextlib.suppress(Exception):
+                menu.entryconfigure(i, state=state)
