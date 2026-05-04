@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.0.0...v1.1.0) (2026-05-04)
+
+
+### Features
+
+* add tests ([719067d](https://github.com/hung-lab/Lung_cancer_risk_models/commit/719067dd298fb90ddc8b0249cb15e3b063f63d66))
+* fix layout and theme colors ([4aa0f96](https://github.com/hung-lab/Lung_cancer_risk_models/commit/4aa0f968bdc9f9eab65a22026625d7f6e143ec22))
+* set up sybil epi form ([0a4b4b9](https://github.com/hung-lab/Lung_cancer_risk_models/commit/0a4b4b9050e57fdd2c251ad73b75ad4f4a84b1ed))
+
+
+### Bug Fixes
+
+* loading screen as well as clean up ui to use tabs ([c2ff62f](https://github.com/hung-lab/Lung_cancer_risk_models/commit/c2ff62fb4c967e981cc55175c9adbd1c3b166077))
+* test errors related to unused variables ([2ed7559](https://github.com/hung-lab/Lung_cancer_risk_models/commit/2ed755963906d4acdf53d742046039a593b2d179))
+* theme to work well in light and dark mode ([754771c](https://github.com/hung-lab/Lung_cancer_risk_models/commit/754771cede83facd9c05bdf11b55fe19f27aef4c))
+
 ## 1.0.0 (2026-04-21)
 
 
