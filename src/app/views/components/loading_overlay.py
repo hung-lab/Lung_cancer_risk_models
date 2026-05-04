@@ -27,10 +27,10 @@ from __future__ import annotations
 
 import datetime
 
-from app.utils.ui_config import SPACE_LG, SPACE_MD, SPACE_SM
 import customtkinter as ctk
 
 from app.config.settings import LEVEL_COLOURS, LEVEL_PREFIX
+from app.utils.ui_config import SPACE_LG, SPACE_MD, SPACE_SM
 
 _MAX_LINES = 6  # how many log lines to keep visible at once
 

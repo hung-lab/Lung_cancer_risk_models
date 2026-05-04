@@ -116,7 +116,7 @@ class TestValidateField:
         assert any("number" in e.lower() for e in errors)
 
     def test_out_of_range_returns_range_error(self, v):
-        value, errors = v.validate_field("999", "Age", 0, 200)
+        _value, errors = v.validate_field("999", "Age", 0, 200)
         assert errors
         assert any("between" in e.lower() for e in errors)
 
@@ -127,13 +127,13 @@ class TestValidateField:
 
     def test_only_min_bound_none_skips_range(self, v):
         # When either bound is None, range check is skipped
-        value, errors = v.validate_field("9999", "X", None, None)
+        _value, errors = v.validate_field("9999", "X", None, None)
         assert errors == []
 
     def test_boundary_values_pass(self, v):
-        value, errors = v.validate_field("0", "Age", 0, 200)
+        _value, errors = v.validate_field("0", "Age", 0, 200)
         assert errors == []
-        value, errors = v.validate_field("200", "Age", 0, 200)
+        _value, errors = v.validate_field("200", "Age", 0, 200)
         assert errors == []
 
     def test_whitespace_value_fails_required(self, v):

@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 sys.modules["sybil"] = MagicMock()
 sys.modules["sybil.serie"] = MagicMock()
 
-import pytest
+import pytest  # noqa: E402
 
-from app.controllers.sybil_controller import SybilController
-from app.models.patient_model import SybilInputData
+from app.controllers.sybil_controller import SybilController  # noqa: E402
+from app.models.patient_model import SybilInputData  # noqa: E402
 
 
 @pytest.fixture

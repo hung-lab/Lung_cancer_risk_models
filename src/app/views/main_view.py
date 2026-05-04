@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import customtkinter as ctk
 
-from app.config.settings import ACCENT_DARK, ERROR_COLOUR, PRIMARY_LIGHT
+from app.config.settings import ERROR_COLOUR
 from app.utils.helpers import open_url
 from app.utils.ui_config import CARD_PAD_X, CARD_PAD_Y, SPACE_MD, SPACE_XS
 

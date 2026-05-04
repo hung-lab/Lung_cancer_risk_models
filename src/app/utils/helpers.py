@@ -1,10 +1,10 @@
 import subprocess
 import sys
+import tkinter.font as tkfont
 import webbrowser
 from pathlib import Path
 
 import customtkinter as ctk
-import tkinter.font as tkfont
 
 from app.config.settings import PROJECT_ROOT
 
