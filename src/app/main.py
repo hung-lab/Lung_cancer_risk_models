@@ -1,6 +1,8 @@
 """Application entry point."""
 
+import os
 import platform
+import sys
 
 import customtkinter as ctk
 from PIL import Image, ImageTk
@@ -16,6 +18,15 @@ from app.views.components.split_view import SplitView
 from app.views.main_view import MainWindow
 from app.views.splash_screen import SplashScreen
 from app.views.sybil_view import SybilView
+
+
+def init_stdio_fallback():
+    log_file = open("app.log", "a", buffering=1)
+    sys.stdout = sys.stdout or log_file
+    sys.stderr = sys.stderr or log_file
+
+
+init_stdio_fallback()
 
 
 def _set_icon(root: ctk.CTk) -> None:
