@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.1.1...v1.1.2) (2026-05-06)
+
+
+### Bug Fixes
+
+* update dependencies for torch and sybil to fix windows and mac builds ([75b07a0](https://github.com/hung-lab/Lung_cancer_risk_models/commit/75b07a024a4e8f952fc14faf04abdf191c433837))
+
 ## [1.1.1](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.1.0...v1.1.1) (2026-05-06)
 
 
