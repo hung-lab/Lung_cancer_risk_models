@@ -1,5 +1,8 @@
 """Application entry point."""
 
+import multiprocessing
+import platform
+
 import customtkinter as ctk
 
 from app.controllers.app_controller import AppController
@@ -16,15 +19,21 @@ from app.views.sybil_view import SybilView
 
 
 def main() -> None:
-
     ctk.set_appearance_mode("System")
 
     full_theme_path = resource_path("assets", "themes", "AccessibleContrast.json")
     ctk.set_default_color_theme(full_theme_path)
 
+    if platform.system() == "Linux":
+        ctk.deactivate_automatic_dpi_awareness()
+        ctk.set_widget_scaling(1.0)
+        ctk.set_window_scaling(1.0)
+
     root = ctk.CTk()
+
     root.option_add("*Font", get_mono_font())
     root.title("CustomTkinter App")
+
     center_window(root, fraction=0.9)
 
     # Hide the main window until the Sybil model has finished loading.
@@ -62,6 +71,10 @@ def main() -> None:
     # before the background thread starts emitting log events.
     root.after(100, sybil_ctrl.load_model)
 
+    def on_close():
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_close)
     root.mainloop()
 
 

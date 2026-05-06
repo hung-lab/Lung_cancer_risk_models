@@ -26,12 +26,16 @@ COPY src/ ./src/
 COPY tests/ ./tests/
 COPY scripts/ ./scripts/
 
+
 RUN uv sync --reinstall
 
 RUN uv run python -c "import app; print('APP OK:', app.__file__)"
 
 RUN useradd --create-home --shell /bin/bash appuser \
+  && mkdir -p /app/build /app/dist /app/tmp \
   && chown -R appuser:appuser /app
+
+ENV TMPDIR=/app/tmp
 
 USER appuser
 

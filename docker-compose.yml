@@ -6,6 +6,10 @@ services:
       - ./src:/app/src
       - ./tests:/app/tests
       - ./scripts:/app/scripts
+      - ./lung.spec:/app/lung.spec
+      - ./out:/app/out
+      - ./out/dist:/app/dist
+      - ./out/build:/app/build
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=${XAUTHORITY}
@@ -20,6 +24,7 @@ services:
       - ./src:/app/src
       - ./tests:/app/tests
       - ./scripts:/app/scripts
+      - ./lung.spec:/app/lung.spec
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=${XAUTHORITY}

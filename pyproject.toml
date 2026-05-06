@@ -10,13 +10,8 @@ requires-python = ">=3.10,<3.11"
 dependencies = [
     "customtkinter>=5.2.0",
     "Pillow>=12.2.0",
-    "sybil @ git+https://github.com/reginabarzilaygroup/Sybil.git@v1.6.0",
-    # Fix: torch and torchvision must be declared as direct dependencies so that
-    # [tool.uv.sources] redirects them to the PyTorch index. Without this, uv
-    # only sees them as transitive deps from Sybil and never consults the
-    # pytorch-cu117 index, causing the "no solution found" resolution failure.
-    "torch==1.13.1+cu117",
-    "torchvision==0.14.1+cu117",
+    "sybil @ git+https://github.com/reginabarzilaygroup/Sybil.git@v1.7.2",
+    "pandas>=2.3.3",
 ]
 
 [tool.hatch.metadata]
@@ -38,6 +33,7 @@ dev = [
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
     "bandit>=1.7.8",
+    "pyinstaller>=6.0.0",
 ]
 
 # -----------------------------
@@ -82,13 +78,3 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-
-
-[tool.uv.sources]
-torch = { index = "pytorch-cu117" }
-torchvision = { index = "pytorch-cu117" }
-
-[[tool.uv.index]]
-name = "pytorch-cu117"
-url = "https://download.pytorch.org/whl/cu117"
-explicit = true

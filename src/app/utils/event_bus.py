@@ -1,3 +1,4 @@
+# event_bus.py
 from __future__ import annotations
 
 import queue
@@ -30,21 +31,23 @@ class EventBus:
         self._subscribers = [s for s in self._subscribers if s != handler]
 
     def emit(self, event: AppEvent) -> None:
-        self._queue.put(event)  # safe from any thread
+        self._queue.put(event)
 
     def start(self) -> None:
         def _poll():
+            processed = 0
             try:
-                while True:
+                while processed < 20:
                     ev = self._queue.get_nowait()
                     for sub in list(self._subscribers):
                         try:
                             sub(ev)
                         except Exception as e:
                             print(f"[EventBus] {e}")
+                    processed += 1
             except queue.Empty:
                 pass
             finally:
-                self._root.after(30, _poll)
+                self._root.after(16, _poll)
 
         _poll()
