@@ -3,13 +3,7 @@ services:
     build: .
     container_name: tkinter-app-dev
     volumes:
-      - ./src:/app/src
-      - ./tests:/app/tests
-      - ./scripts:/app/scripts
-      - ./lung.spec:/app/lung.spec
-      - ./out:/app/out
-      - ./out/dist:/app/dist
-      - ./out/build:/app/build
+      - .:/app
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=${XAUTHORITY}
@@ -21,10 +15,7 @@ services:
     build: .
     container_name: tkinter-app-shell
     volumes:
-      - ./src:/app/src
-      - ./tests:/app/tests
-      - ./scripts:/app/scripts
-      - ./lung.spec:/app/lung.spec
+      - .:/app
     environment:
       - DISPLAY=${DISPLAY}
       - XAUTHORITY=${XAUTHORITY}

@@ -11,8 +11,8 @@ pil_datas,   pil_binaries,   pil_hidden   = collect_all("PIL")
 datas = ctk_datas + sybil_datas + torch_datas + tv_datas + pil_datas
 if os.path.exists("src/app/assets"):
     datas += [("src/app/assets", "assets")]
-if os.path.exists("app_icon.ico"):
-    datas += [("app_icon.ico", ".")]
+if os.path.exists("src/app/assets/icons/app_icon.ico"):
+    datas += [("src/app/assets/icons", "assets/icons")]
 
 binaries = ctk_binaries + sybil_binaries + torch_binaries + tv_binaries + pil_binaries
 
@@ -55,7 +55,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=False,
-    icon="app_icon.ico" if os.path.exists("app_icon.ico") else None,
+    icon="src/app/assets/icons/app_icon.ico",
 )
 coll = COLLECT(
     exe, a.binaries, a.zipfiles, a.datas,

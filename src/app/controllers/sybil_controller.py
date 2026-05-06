@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 from dataclasses import asdict
@@ -23,6 +24,12 @@ class SybilController(BaseController):
 
         def _task():
             try:
+                import torch
+
+                torch.set_num_threads(2)
+                torch.set_num_interop_threads(1)
+                # Force CPU — prevents torch from looking for CUDA at runtime
+                os.environ["CUDA_VISIBLE_DEVICES"] = ""
                 # lazy import — runs off main thread so GIL contention
                 # during import doesn't block the UI
                 from sybil import Sybil

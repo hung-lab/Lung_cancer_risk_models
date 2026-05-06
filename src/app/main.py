@@ -1,9 +1,9 @@
 """Application entry point."""
 
-import multiprocessing
 import platform
 
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
 from app.controllers.app_controller import AppController
 from app.controllers.menubar_controller import MenuBarController
@@ -16,6 +16,40 @@ from app.views.components.split_view import SplitView
 from app.views.main_view import MainWindow
 from app.views.splash_screen import SplashScreen
 from app.views.sybil_view import SybilView
+
+
+def _set_icon(root: ctk.CTk) -> None:
+    """Set taskbar/dock icon cross-platform."""
+
+    system = platform.system()
+
+    try:
+        if system == "Windows":
+            # Windows uses .ico natively via iconbitmap
+            ico_path = resource_path("assets", "icons", "app_icon.ico")
+            root.iconbitmap(str(ico_path))
+
+        elif system == "Darwin":
+            # Mac — iconbitmap doesn't work, use iconphoto
+            # The dock icon is better set via the .app bundle Info.plist
+            # but iconphoto works for the window titlebar
+            img_path = resource_path("assets", "icons", "app_icon.png")
+            img = ImageTk.PhotoImage(Image.open(img_path).resize((512, 512)))
+            root.iconphoto(True, img)
+            root._icon_ref = img  # prevent garbage collection
+
+        else:
+            # Linux — iconphoto with multiple sizes for best rendering
+            img_path = resource_path("assets", "icons", "app_icon.png")
+            base = Image.open(img_path)
+            icons = [
+                ImageTk.PhotoImage(base.resize((sz, sz)))
+                for sz in (16, 32, 48, 64, 128, 256)
+            ]
+            root.iconphoto(True, *icons)
+            root._icon_refs = icons  # prevent garbage collection
+    except Exception as e:
+        print(f"[ICON] Failed to set icon: {e}")
 
 
 def main() -> None:
@@ -33,7 +67,7 @@ def main() -> None:
 
     root.option_add("*Font", get_mono_font())
     root.title("CustomTkinter App")
-
+    _set_icon(root)
     center_window(root, fraction=0.9)
 
     # Hide the main window until the Sybil model has finished loading.

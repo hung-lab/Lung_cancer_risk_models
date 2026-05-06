@@ -10,9 +10,25 @@ requires-python = ">=3.10,<3.11"
 dependencies = [
     "customtkinter>=5.2.0",
     "Pillow>=12.2.0",
-    "sybil @ git+https://github.com/reginabarzilaygroup/Sybil.git@v1.7.2",
-    "pandas>=2.3.3",
+    "sybil @ git+https://github.com/reginabarzilaygroup/Sybil.git@v1.6.0",
+    "torch==1.13.1+cpu",
+    "torchvision==0.14.1+cpu",
 ]
+
+[tool.uv]
+override-dependencies = [
+    "torch==1.13.1+cpu",
+    "torchvision==0.14.1+cpu",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.hatch.metadata]
 # Required to allow git+https:// direct references in project.dependencies
