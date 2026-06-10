@@ -42,41 +42,28 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --dev
 
-      - name: Create launcher package
+      - name: Install system deps
         run: |
-          mkdir -p dist/lung-linux
-          cp -r src pyproject.toml uv.lock dist/lung-linux/
+          sudo apt-get update
+          sudo apt-get install -y \
+            imagemagick \
+            fuse \
+            libfuse2 \
+            wget
 
-          cat > dist/lung-linux/lung << 'EOF'
-          #!/bin/bash
-          DIR="$(cd "$(dirname "$0")" && pwd)"
-          cd "$DIR"
-          exec uv run tkinter-app "$@"
-          EOF
-          chmod +x dist/lung-linux/lung
-
-          cat > dist/lung-linux/install.sh << 'EOF'
-          #!/bin/bash
-          set -e
-          INSTALL_DIR="$HOME/.local/lib/lung"
-          BIN_DIR="$HOME/.local/bin"
-          mkdir -p "$INSTALL_DIR" "$BIN_DIR"
-          cp -r . "$INSTALL_DIR/"
-          ln -sf "$INSTALL_DIR/lung" "$BIN_DIR/lung"
-          echo "Installed. Run: lung"
-          EOF
-          chmod +x dist/lung-linux/install.sh
-
-          tar -czf dist/lung-linux-x86_64.tar.gz -C dist lung-linux/
+      - name: Run Linux build script
+        run: |
+          ./scripts/build_linux.sh both
 
       - name: Upload to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ needs.release.outputs.tag_name }} \
-            dist/lung-linux-x86_64.tar.gz
+            lung-x86_64.AppImage \
+            lung_1.1.0_amd64.deb
 
   build-windows:
     needs: release
@@ -176,8 +163,12 @@ jobs:
             --window-size 400 200 \
             --icon-size 100 \
             --app-drop-link 300 100 \
-            dist/lung-mac-${{ matrix.arch }}.dmg dist/Lung.app \ 
-          || cp -r dist/Lung.app dist/lung-mac-${{ matrix.arch }}.dmg  
+            dist/lung-mac-${{ matrix.arch }}.dmg \
+            dist/Lung.app
+
+          if [ ! -f "dist/lung-mac-${{ matrix.arch }}.dmg" ]; then
+            cp -r dist/Lung.app dist/lung-mac-${{ matrix.arch }}.dmg
+          fi 
 
       - name: Upload to release
         env:

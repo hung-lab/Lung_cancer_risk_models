@@ -35,8 +35,7 @@ RUN Rscript -e "library(pak); packageVersion('pak'); cat('R OK\n')"
 # Add `Rapp` to PATH
 RUN Rscript -e "Rapp::install_pkg_cli_apps('Rapp')"
 
-# Add `integral-radiomics` CLI to PATH
-RUN Rscript -e "integralrad::install_integralrad_cli()"
+
 
 WORKDIR /app
 
@@ -54,15 +53,17 @@ RUN uv run python -c "import app; print('APP OK:', app.__file__)"
 
 # Verify R packages installed correctly
 RUN Rscript -e "cat(R.version\$major, R.version\$minor, '\n')"
-RUN Rscript -e "library(Rapp); library(integralrad); cat('R OK\n')"
+RUN Rscript -e "library(Rapp); cat('R OK\n')"
 
 RUN useradd --create-home --shell /bin/bash appuser \
   && mkdir -p /app/build /app/dist /app/tmp \
   && chown -R appuser:appuser /app
 
 
-
 USER appuser
+
+# Add `integral-radiomics` CLI to PATH
+RUN Rscript -e "integralrad::install_integralrad_cli()"
 
 ENV PATH="/home/appuser/.local/bin:${PATH}"
 ENV TMPDIR=/app/tmp

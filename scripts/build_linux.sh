@@ -122,13 +122,13 @@ build_app() {
     if [ $? -eq 0 ]; then
         print_status "Build completed successfully!"
 
-        if [ -d "dist/lung" ]; then
-            APP_SIZE=$(du -sh dist/lung | cut -f1)
+        if [ -d "dist/PulmoRisk" ]; then
+            APP_SIZE=$(du -sh dist/PulmoRisk | cut -f1)
             print_status "Application size: $APP_SIZE"
-            print_status "Application location: $PROJECT_ROOT/dist/lung"
+            print_status "Application location: $PROJECT_ROOT/dist/PulmoRisk"
 
             # Make executable
-            chmod +x dist/lung/lung
+            chmod +x dist/PulmoRisk/PulmoRisk
         fi
     else
         print_error "Build failed. Check build.log for details"
@@ -141,37 +141,37 @@ create_desktop_file() {
     print_status "Creating .desktop file..."
 
     # Ensure the directory exists
-    mkdir -p dist/lung
+    mkdir -p dist/PulmoRisk
 
-    cat > dist/lung/lung.desktop << EOF
+    cat > dist/PulmoRisk/PulmoRisk.desktop << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=lung
+Name=PulmoRisk
 Comment=Lung Cancer risk prediction tool
-Exec=$(pwd)/dist/lung/lung
-Icon=$(pwd)/dist/lung/app_icon.png
+Exec=$(pwd)/dist/PulmoRisk/PulmoRisk
+Icon=$(pwd)/dist/PulmoRisk/app_icon.png
 Terminal=false
 Categories=Science;Education;MedicalSoftware;
 EOF
 
-    print_status "Desktop file created: dist/lung/lung.desktop"
+    print_status "Desktop file created: dist/PulmoRisk/PulmoRisk.desktop"
     print_status "To install system-wide:"
-    print_status "  sudo cp dist/lung/lung.desktop /usr/share/applications/"
+    print_status "  sudo cp dist/PulmoRisk/PulmoRisk.desktop /usr/share/applications/"
 }
 
 # Test the built application
 test_app() {
     print_status "Testing application..."
 
-    if [ ! -f "dist/lung/lung" ]; then
+    if [ ! -f "dist/PulmoRisk/lunPulmoRiskg" ]; then
         print_error "Application not found"
         return 1
     fi
 
     # Try to launch the app
     print_status "Attempting to launch application..."
-    ./dist/lung/lung &
+    ./dist/PulmoRisk/PulmoRisk &
 
     print_status "Application launched. Check if it opens correctly."
     print_warning "Press Ctrl+C to stop if app doesn't open or crashes"
@@ -180,7 +180,7 @@ test_app() {
 
 # Create AppImage (portable Linux application)
 create_appimage() {
-    if [ ! -d "dist/lung" ]; then
+    if [ ! -d "dist/PulmoRisk" ]; then
         print_error "Application not found. Build first."
         return 1
     fi
@@ -197,36 +197,36 @@ create_appimage() {
     fi
 
     # Create AppDir structure
-    APP_DIR="lung.AppDir"
+    APP_DIR="PulmoRisk.AppDir"
     rm -rf "$APP_DIR"
     mkdir -p "$APP_DIR/usr/bin"
     mkdir -p "$APP_DIR/usr/share/applications"
     mkdir -p "$APP_DIR/usr/share/icons/hicolor/256x256/apps"
 
     # Copy application
-    cp -r dist/lung/* "$APP_DIR/usr/bin/"
+    cp -r dist/PulmoRisk/* "$APP_DIR/usr/bin/"
 
     # Copy icon
     if [ -f "$ICON_FILE" ]; then
-        cp app_icon.png "$APP_DIR/usr/share/icons/hicolor/256x256/apps/lung.png"
-        cp app_icon.png "$APP_DIR/lung.png"
+        cp app_icon.png "$APP_DIR/usr/share/icons/hicolor/256x256/apps/PulmoRisk.png"
+        cp app_icon.png "$APP_DIR/PulmoRisk.png"
     fi
 
     # Create desktop file
-    cat > "$APP_DIR/lung.desktop" << EOF
+    cat > "$APP_DIR/PulmoRisk.desktop" << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=lung
+Name=PulmoRisk
 Comment=Lung Cancer risk prediction tool
-Exec=lung
-Icon=lung
+Exec=PulmoRisk
+Icon=PulmoRisk
 Terminal=false
 Categories=Science;Education;MedicalSoftware;
 EOF
 
     # Copy desktop file
-    cp "$APP_DIR/lung.desktop" "$APP_DIR/usr/share/applications/"
+    cp "$APP_DIR/PulmoRisk.desktop" "$APP_DIR/usr/share/applications/"
 
     # Create AppRun
     cat > "$APP_DIR/AppRun" << 'EOF'
@@ -236,17 +236,17 @@ HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin:${PATH}"
 export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
 cd "${HERE}/usr/bin"
-exec "${HERE}/usr/bin/lung" "$@"
+exec "${HERE}/usr/bin/PulmoRisk" "$@"
 EOF
 
     chmod +x "$APP_DIR/AppRun"
 
     # Build AppImage
-    ARCH=x86_64 ./appimagetool "$APP_DIR" lung-x86_64.AppImage
+    ARCH=x86_64 ./appimagetool "$APP_DIR" PulmoRisk-x86_64.AppImage
 
     if [ $? -eq 0 ]; then
-        APP_SIZE=$(du -sh lung-x86_64.AppImage | cut -f1)
-        print_status "AppImage created: lung-x86_64.AppImage ($APP_SIZE)"
+        APP_SIZE=$(du -sh PulmoRisk-x86_64.AppImage | cut -f1)
+        print_status "AppImage created: PulmoRisk-x86_64.AppImage ($APP_SIZE)"
         print_status "You can now distribute this single file!"
     else
         print_error "Failed to create AppImage"
@@ -259,7 +259,7 @@ EOF
 
 # Create DEB package
 create_deb() {
-    if [ ! -d "dist/lung" ]; then
+    if [ ! -d "dist/PulmoRisk" ]; then
         print_error "Application not found. Build first."
         return 1
     fi
@@ -267,47 +267,47 @@ create_deb() {
     print_status "Creating DEB package..."
 
     # Create package structure
-    PKG_DIR="lung_1.1.0_amd64"
+    PKG_DIR="PulmoRisk_1.1.0_amd64"
     rm -rf "$PKG_DIR"
 
     mkdir -p "$PKG_DIR/DEBIAN"
-    mkdir -p "$PKG_DIR/opt/lung"
+    mkdir -p "$PKG_DIR/opt/PulmoRisk"
     mkdir -p "$PKG_DIR/usr/share/applications"
     mkdir -p "$PKG_DIR/usr/share/icons/hicolor/256x256/apps"
     mkdir -p "$PKG_DIR/usr/bin"
 
     # Copy application
-    cp -r dist/lung/* "$PKG_DIR/opt/lung/"
+    cp -r dist/lunPulmoRiskg/* "$PKG_DIR/opt/PulmoRisk/"
 
 # Create symlink for gui
-cat > "$PKG_DIR/usr/bin/lung" << 'EOF'
+cat > "$PKG_DIR/usr/bin/PulmoRisk" << 'EOF'
 #!/bin/bash
-cd /opt/lung
-exec /opt/lung/lung "$@"
+cd /opt/PulmoRisk
+exec /opt/PulmoRisk/PulmoRisk "$@"
 EOF
-    chmod +x "$PKG_DIR/usr/bin/lung"
+    chmod +x "$PKG_DIR/usr/bin/PulmoRisk"
 
     # Copy icon
     if [ -f "$ICON_FILE" ]; then
-        cp app_icon.png "$PKG_DIR/usr/share/icons/hicolor/256x256/apps/lung.png"
+        cp app_icon.png "$PKG_DIR/usr/share/icons/hicolor/256x256/apps/PulmoRisk.png"
     fi
 
     # Create desktop file
-    cat > "$PKG_DIR/usr/share/applications/lung.desktop" << EOF
+    cat > "$PKG_DIR/usr/share/applications/PulmoRisk.desktop" << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Lung
+Name=PulmoRisk
 Comment=Lung Cancer risk prediction tool
-Exec=/usr/bin/lung
-Icon=lung
+Exec=/usr/bin/PulmoRisk
+Icon=PulmoRisk
 Terminal=false
 Categories=Science;Education;MedicalSoftware;
 EOF
 
     # Create control file
     cat > "$PKG_DIR/DEBIAN/control" << EOF
-Package: lung
+Package: PulmoRisk
 Version: 1.0.0
 Section: science
 Priority: optional
@@ -315,7 +315,7 @@ Architecture: amd64
 Depends: python3 (>= 3.8)
 Maintainer: Your Name <your.email@example.com>
 Description: Lung Cancer risk prediction tool
- Lung is a tool for lung cancer risk prediction that combines deep learning features from the Sybil model with clinical and epidemiological factors.
+ PulmoRisk is a tool for lung cancer risk prediction that combines deep learning features from the Sybil model with clinical and epidemiological factors.
 EOF
 
     # Build package
@@ -371,7 +371,7 @@ troubleshoot() {
 main() {
     echo ""
     echo "========================================"
-    echo "  Lung Linux Build Script"
+    echo "  PulmoRisk Linux Build Script"
     echo "========================================"
     echo ""
 

@@ -110,9 +110,17 @@ class SplashScreen:
         if event.type == "log" and event.message:
             self._status.configure(text=event.message)
 
+        elif event.type == "ui_state":
+            if event.message == "install_failed":
+                self._show_error(
+                    "Failed to install integral radiomics cli and R packages"
+                )
+            elif event.message == "R_missing":
+                self._show_error(
+                    "R is not installed. Download and install from https://github.com/r-lib/rig"
+                )
         elif event.type == "model_ready":
             self._close_and_show()
-
         elif event.type == "model_error":
             self._show_error(event.message or "Model failed to load.")
 

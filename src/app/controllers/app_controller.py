@@ -1,7 +1,13 @@
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
 import customtkinter as ctk
 
 from app.controllers.base_controller import BaseController
 from app.utils.event_bus import AppEvent, EventBus
+from app.utils.helpers import find_integral_cli
 
 
 class AppController(BaseController):
@@ -46,3 +52,83 @@ class AppController(BaseController):
 
     def quit_app(self):
         self.bus.emit(AppEvent(type="app", message="quit"))
+
+    def check_and_install_integral(self):
+        """Returns (available, message)."""
+
+        self._log("Checking R dependencies")
+
+        # Step 1: R itself must be installed by the user
+        if not shutil.which("Rscript"):
+            self._error(
+                "R is not installed. Download and install from https://github.com/r-lib/rig"
+            )
+            self._emit(AppEvent(type="ui_state", message="R_missing"))
+            return
+
+        user_bin = Path.home() / ".local" / "bin"
+        os.environ["PATH"] = f"{user_bin}:{os.environ.get('PATH', '')}"
+
+        cli = find_integral_cli()
+
+        if cli:
+            self._log("integral-radiomics is ready")
+            self._emit(AppEvent(type="ui_state", message="integral_radiomics_ready"))
+            return
+
+        self._log("Auto installing R packages and integral-radiomics")
+
+        r_lib = Path.home() / "R" / "library"
+
+        install_cmd = f"""
+        dir.create("{r_lib}", recursive=TRUE, showWarnings=FALSE)
+
+        if (!requireNamespace("pak", quietly=TRUE)) {{
+        install.packages(
+            "pak",
+            repos="https://cloud.r-project.org",
+            lib="{r_lib}"
+        )
+        }}
+
+        .libPaths(c("{r_lib}", .libPaths()))
+
+        pak::pak("mattwarkentin/INTEGRAL-Radiomics")
+
+        library(Rapp)
+        library(integralrad)
+
+        Rapp::install_pkg_cli_apps("Rapp")
+        integralrad::install_integralrad_cli()
+        """
+
+        env = os.environ.copy()
+        env["R_LIBS_USER"] = str(r_lib)
+        env["PATH"] = f"{user_bin}:{env.get('PATH', '')}"
+
+        try:
+            result = subprocess.run(
+                ["Rscript", "-e", install_cmd],
+                env=env,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+
+            if result.stdout:
+                self._log(result.stdout)
+
+        except subprocess.CalledProcessError as e:
+            self._log(f"Install failed:\n{e.stderr}")
+            self._emit(AppEvent(type="ui_state", message="install_failed"))
+            return
+
+        # Verify install
+        if cli:
+            self._log(f"Installation complete: {cli}")
+            self._emit(AppEvent(type="ui_state", message="install_complete"))
+        else:
+            self._log(
+                "Installation finished but integral-radiomics executable was not found"
+            )
+            self._emit(AppEvent(type="ui_state", message="install_failed"))

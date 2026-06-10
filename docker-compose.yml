@@ -4,9 +4,9 @@ services:
       context: .
       # optional: name the image so Docker reuses the layer cache
       cache_from:
-        - PulmoRisk:latest
-    image: PulmoRisk:latest
-    container_name: PulmoRisk-dev
+        - pulmorisk:latest
+    image: pulmorisk:latest
+    container_name: pulmorisk-dev
     volumes:
       - .:/app
     environment:
@@ -17,8 +17,8 @@ services:
     tty: true
 
   shell:
-    image: PulmoRisk:latest
-    container_name: PulmoRisk-shell
+    image: pulmorisk:latest
+    container_name: pulmorisk-shell
     volumes:
       - .:/app
     environment:

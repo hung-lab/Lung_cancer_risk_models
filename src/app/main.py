@@ -121,6 +121,8 @@ def main() -> None:
     # before the background thread starts emitting log events.
     root.after(100, sybil_ctrl.load_model)
 
+    root.after(100, app_ctrl.check_and_install_integral)
+
     def on_close():
         root.destroy()
 

@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 import tkinter.font as tkfont
@@ -106,3 +107,17 @@ def validate_ct_path(path: Path) -> tuple[bool, str]:
     if not any(path.iterdir()):
         return False, "Directory is empty"
     return True, ""
+
+
+def find_integral_cli() -> str | None:
+    cli = shutil.which("integral-radiomics")
+
+    if cli:
+        return cli
+
+    cli = Path.home() / ".local" / "bin" / "integral-radiomics"
+
+    if cli.exists():
+        return str(cli)
+
+    return None

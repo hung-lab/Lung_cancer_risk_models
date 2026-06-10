@@ -2,14 +2,18 @@ version = 1
 revision = 3
 requires-python = ">=3.10, <3.14.1"
 resolution-markers = [
-    "python_full_version >= '3.11'",
-    "python_full_version < '3.11'",
+    "python_full_version >= '3.11' and sys_platform != 'darwin'",
+    "python_full_version >= '3.11' and sys_platform == 'darwin'",
+    "python_full_version < '3.11' and sys_platform != 'darwin'",
+    "python_full_version < '3.11' and sys_platform == 'darwin'",
 ]
 
 [manifest]
 overrides = [
-    { name = "torch", specifier = "==1.13.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
-    { name = "torchvision", specifier = "==0.14.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform != 'darwin'", specifier = "==1.13.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform == 'darwin'", specifier = "==1.13.1" },
+    { name = "torchvision", marker = "sys_platform != 'darwin'", specifier = "==0.14.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torchvision", marker = "sys_platform == 'darwin'", specifier = "==0.14.1" },
 ]
 
 [[package]]
@@ -419,7 +423,7 @@ name = "macholib"
 version = "1.16.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "altgraph" },
+    { name = "altgraph", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/10/2f/97589876ea967487978071c9042518d28b958d87b17dceb7cdc1d881f963/macholib-1.16.4.tar.gz", hash = "sha256:f408c93ab2e995cd2c46e34fe328b130404be143469e41bc366c807448979362", size = 59427, upload-time = "2025-11-22T08:28:38.373Z" }
 wheels = [
@@ -698,8 +702,10 @@ dependencies = [
     { name = "six" },
     { name = "sybil" },
     { name = "tifffile" },
-    { name = "torch" },
-    { name = "torchvision" },
+    { name = "torch", version = "1.13.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "1.13.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+    { name = "torchvision", version = "0.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "torchvision", version = "0.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
     { name = "trimesh" },
     { name = "versioneer" },
 ]
@@ -734,8 +740,10 @@ requires-dist = [
     { name = "six", specifier = "==1.17.0" },
     { name = "sybil", git = "https://github.com/reginabarzilaygroup/Sybil.git?rev=v1.6.0" },
     { name = "tifffile", specifier = "==2024.8.30" },
-    { name = "torch", specifier = "==1.13.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
-    { name = "torchvision", specifier = "==0.14.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform != 'darwin'", specifier = "==1.13.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "sys_platform == 'darwin'", specifier = "==1.13.1+cpu" },
+    { name = "torchvision", marker = "sys_platform != 'darwin'", specifier = "==0.14.1+cpu", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torchvision", marker = "sys_platform == 'darwin'", specifier = "==0.14.1+cpu" },
     { name = "trimesh", specifier = "==3.23.5" },
     { name = "versioneer", specifier = "==0.29" },
 ]
@@ -1302,9 +1310,11 @@ dependencies = [
     { name = "pillow" },
     { name = "pydicom" },
     { name = "pylibjpeg", extra = ["all"] },
-    { name = "torch" },
+    { name = "torch", version = "1.13.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "1.13.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
     { name = "torchio" },
-    { name = "torchvision" },
+    { name = "torchvision", version = "0.14.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "torchvision", version = "0.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
     { name = "tqdm" },
 ]
 
@@ -1376,10 +1386,30 @@ wheels = [
 
 [[package]]
 name = "torch"
+version = "1.13.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.11' and sys_platform == 'darwin'",
+    "python_full_version < '3.11' and sys_platform == 'darwin'",
+]
+dependencies = [
+    { name = "typing-extensions", marker = "sys_platform == 'darwin'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/82/d8/0547f8a22a0c8aeb7e7e5e321892f1dcf93ea021829a99f1a25f1f535871/torch-1.13.1-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:393a6273c832e047581063fb74335ff50b4c566217019cc6ace318cd79eb0566", size = 135290591, upload-time = "2022-12-15T20:18:32.019Z" },
+    { url = "https://files.pythonhosted.org/packages/24/45/61e41ef8a84e1d6200ff10b7cb87e23e211599ab62420396a363295f973c/torch-1.13.1-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:0122806b111b949d21fa1a5f9764d1fd2fcc4a47cb7f8ff914204fd4fc752ed5", size = 53188434, upload-time = "2022-12-15T20:18:56.395Z" },
+]
+
+[[package]]
+name = "torch"
 version = "1.13.1+cpu"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "python_full_version >= '3.11' and sys_platform != 'darwin'",
+    "python_full_version < '3.11' and sys_platform != 'darwin'",
+]
 dependencies = [
-    { name = "typing-extensions" },
+    { name = "typing-extensions", marker = "sys_platform != 'darwin'" },
 ]
 wheels = [
     { url = "https://download-r2.pytorch.org/whl/cpu/torch-1.13.1%2Bcpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:11692523b87c45b79ddfb5148b12a713d85235d399915490d94e079521f7e014", upload-time = "2023-10-06T00:07:35Z" },
@@ -1399,7 +1429,8 @@ dependencies = [
     { name = "numpy" },
     { name = "scipy" },
     { name = "simpleitk" },
-    { name = "torch" },
+    { name = "torch", version = "1.13.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "1.13.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
     { name = "tqdm" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/b8/e68a2fe3503e56fed2f14ac0c97eb8243a6664cac39aed4372252ca0be41/torchio-0.18.74.tar.gz", hash = "sha256:42917fac300d5700249d80229435ce0b210d07370571cefd6954ce154f02969b", size = 40169716, upload-time = "2022-02-26T19:12:32.407Z" }
@@ -1409,14 +1440,38 @@ wheels = [
 
 [[package]]
 name = "torchvision"
+version = "0.14.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.11' and sys_platform == 'darwin'",
+    "python_full_version < '3.11' and sys_platform == 'darwin'",
+]
+dependencies = [
+    { name = "numpy", marker = "sys_platform == 'darwin'" },
+    { name = "pillow", marker = "sys_platform == 'darwin'" },
+    { name = "requests", marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "1.13.1", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform == 'darwin'" },
+    { name = "typing-extensions", marker = "sys_platform == 'darwin'" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/7e/4eaf3fff579af12c5d02514fd613826b939c24f5a9d2c8962c7e23560382/torchvision-0.14.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:eeb05dd9dd3af5428fee525400759daf8da8e4caec45ddd6908cfb36571f6433", size = 1391610, upload-time = "2022-12-15T20:19:54.233Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/46/065c71441c0bfb34914569f3728c4ecaa0364e65ed2f3adba98d84be568e/torchvision-0.14.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:8d0766ea92affa7af248e327dd85f7c9cfdf51a57530b43212d4e1858548e9d7", size = 1308938, upload-time = "2022-12-15T20:19:56.493Z" },
+]
+
+[[package]]
+name = "torchvision"
 version = "0.14.1+cpu"
 source = { registry = "https://download.pytorch.org/whl/cpu" }
+resolution-markers = [
+    "python_full_version >= '3.11' and sys_platform != 'darwin'",
+    "python_full_version < '3.11' and sys_platform != 'darwin'",
+]
 dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "requests" },
-    { name = "torch" },
-    { name = "typing-extensions" },
+    { name = "numpy", marker = "sys_platform != 'darwin'" },
+    { name = "pillow", marker = "sys_platform != 'darwin'" },
+    { name = "requests", marker = "sys_platform != 'darwin'" },
+    { name = "torch", version = "1.13.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+    { name = "typing-extensions", marker = "sys_platform != 'darwin'" },
 ]
 wheels = [
     { url = "https://download-r2.pytorch.org/whl/cpu/torchvision-0.14.1%2Bcpu-cp310-cp310-linux_x86_64.whl", hash = "sha256:a49c36369b48720304cda4085bba4a05b42ff295400feae89e0ee8683051f923", upload-time = "2023-10-06T00:35:27Z" },
