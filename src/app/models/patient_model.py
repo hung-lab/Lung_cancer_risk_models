@@ -38,10 +38,6 @@ class IntegralClinicalData:
     epi_quittime: float
     epi_bmi: float
 
-    study: str | None = None
-    pid: str | None = None
-    nid: str | None = None
-
     image_file: str | None = None
     mask_file: str | None = None
 

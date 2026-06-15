@@ -8,6 +8,7 @@ ENV UV_LINK_MODE=copy
 
 # Step 1: system packages
 RUN apt-get update && apt-get install -y \
+  cmake \
   python3-tk \
   tk-dev \
   build-essential \
@@ -17,24 +18,16 @@ RUN apt-get update && apt-get install -y \
   libglib2.0-0 \
   r-base \
   r-base-dev \
-  r-cran-jsonlite \
-  r-cran-glmnet \
   libcurl4-openssl-dev \
+  libuv1-dev \
   libssl-dev \
   libxml2-dev \
+  libpng-dev \
+  libicu-dev \
+  xz-utils \
+  rustc \
+  cargo \
   && rm -rf /var/lib/apt/lists/*
-
-# Step 2: Install required R packages
-RUN Rscript -e "install.packages('Rapp')"
-RUN Rscript -e "install.packages('pak', repos='https://cloud.r-project.org')"
-RUN Rscript -e "pak::pak('mattwarkentin/INTEGRAL-Radiomics')"
-
-# Step 3: verify
-RUN Rscript -e "library(pak); packageVersion('pak'); cat('R OK\n')"
-
-# Add `Rapp` to PATH
-RUN Rscript -e "Rapp::install_pkg_cli_apps('Rapp')"
-
 
 
 WORKDIR /app
@@ -53,19 +46,18 @@ RUN uv run python -c "import app; print('APP OK:', app.__file__)"
 
 # Verify R packages installed correctly
 RUN Rscript -e "cat(R.version\$major, R.version\$minor, '\n')"
-RUN Rscript -e "library(Rapp); cat('R OK\n')"
 
 RUN useradd --create-home --shell /bin/bash appuser \
-  && mkdir -p /app/build /app/dist /app/tmp \
+  && mkdir -p /app/build /app/dist \
   && chown -R appuser:appuser /app
 
 
 USER appuser
 
-# Add `integral-radiomics` CLI to PATH
-RUN Rscript -e "integralrad::install_integralrad_cli()"
 
 ENV PATH="/home/appuser/.local/bin:${PATH}"
-ENV TMPDIR=/app/tmp
+ENV TMPDIR=/tmp
+ENV R_LIBS_USER=/home/appuser/R/library
+ENV R_LIBS=/home/appuser/R/library
 
 #ENTRYPOINT ["uv", "run", "tkinter-app"]

@@ -65,8 +65,8 @@ tkinter-app/
 ├── .github/
 │   └── workflows/
 │       ├── ci.yml          # CI pipeline
-│       ├── release.yml     # Multi-platform releases
-│       └── version.yml     # Automatic version bumping
+│       └── release.yml     # Multi-platform releases
+
 ├── src/
 │   └── app/
 │       ├── __init__.py

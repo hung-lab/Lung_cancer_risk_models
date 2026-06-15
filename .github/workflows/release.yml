@@ -62,8 +62,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ needs.release.outputs.tag_name }} \
-            lung-x86_64.AppImage \
-            lung_1.1.0_amd64.deb
+            pulmorisk-x86_64.AppImage \
+            pulmorisk_1.1.0_amd64.deb
 
   build-windows:
     needs: release
@@ -98,13 +98,13 @@ jobs:
       - name: Zip output
         shell: pwsh
         run: |
-          Compress-Archive -Path dist/lung -DestinationPath dist/lung-windows-x86_64.zip
+          Compress-Archive -Path dist/pulmorisk -DestinationPath dist/pulmorisk-windows-x86_64.zip
 
       - name: Upload to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release.outputs.tag_name }} dist/lung-windows-x86_64.zip
+          gh release upload ${{ needs.release.outputs.tag_name }} dist/pulmorisk-windows-x86_64.zip
 
   build-mac:
     needs: release
@@ -114,8 +114,6 @@ jobs:
         include:
           - runner: macos-latest # ARM (M1/M2)
             arch: arm64
-          - runner: macos-13 # Intel (last Intel runner)
-            arch: x86_64
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -157,17 +155,17 @@ jobs:
 
       - name: Create DMG
         run: |
-          # lung-mac.spec produces dist/Lung.app (the BUNDLE target)
+          # lung-mac.spec produces dist/PulmoRisk.app (the BUNDLE target)
           create-dmg \
-            --volname "Lung" \
+            --volname "PulmoRisk" \
             --window-size 400 200 \
             --icon-size 100 \
             --app-drop-link 300 100 \
-            dist/lung-mac-${{ matrix.arch }}.dmg \
-            dist/Lung.app
+            dist/PulmoRisk-mac-${{ matrix.arch }}.dmg \
+            dist/PulmoRisk.app
 
-          if [ ! -f "dist/lung-mac-${{ matrix.arch }}.dmg" ]; then
-            cp -r dist/Lung.app dist/lung-mac-${{ matrix.arch }}.dmg
+          if [ ! -f "dist/PulmoRisk-mac-${{ matrix.arch }}.dmg" ]; then
+            cp -r dist/PulmoRisk.app dist/PulmoRisk-mac-${{ matrix.arch }}.dmg
           fi 
 
       - name: Upload to release
@@ -175,4 +173,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ needs.release.outputs.tag_name }} \
-            dist/lung-mac-${{ matrix.arch }}.dmg
+            dist/PulmoRisk-mac-${{ matrix.arch }}.dmg

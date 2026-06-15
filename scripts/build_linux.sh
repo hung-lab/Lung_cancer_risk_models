@@ -34,7 +34,7 @@ BUILD_TYPE="${1:-both}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SPEC_FILE="$PROJECT_ROOT/lung.spec"
-ICON_FILE="$PROJECT_ROOT/app_icon.png"
+ICON_FILE="$PROJECT_ROOT/src/app/assets/icons/app_icon.png"
 
 cd "$PROJECT_ROOT"
 

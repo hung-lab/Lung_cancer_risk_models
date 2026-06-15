@@ -1,7 +1,7 @@
 """Application entry point."""
 
 import platform
-import sys
+import threading
 
 import customtkinter as ctk
 from PIL import Image, ImageTk
@@ -19,15 +19,6 @@ from app.views.integral_view import IntegralView
 from app.views.main_view import MainWindow
 from app.views.splash_screen import SplashScreen
 from app.views.sybil_view import SybilView
-
-
-def init_stdio_fallback():
-    log_file = open("app.log", "a", buffering=1)
-    sys.stdout = sys.stdout or log_file
-    sys.stderr = sys.stderr or log_file
-
-
-init_stdio_fallback()
 
 
 def _set_icon(root: ctk.CTk) -> None:
@@ -121,7 +112,12 @@ def main() -> None:
     # before the background thread starts emitting log events.
     root.after(100, sybil_ctrl.load_model)
 
-    root.after(100, app_ctrl.check_and_install_integral)
+    root.after(
+        100,
+        lambda: threading.Thread(
+            target=app_ctrl.check_and_install_integral, daemon=True
+        ).start(),
+    )
 
     def on_close():
         root.destroy()

@@ -110,14 +110,19 @@ def validate_ct_path(path: Path) -> tuple[bool, str]:
 
 
 def find_integral_cli() -> str | None:
+    # 1. system PATH
     cli = shutil.which("integral-radiomics")
-
     if cli:
         return cli
 
-    cli = Path.home() / ".local" / "bin" / "integral-radiomics"
-
-    if cli.exists():
-        return str(cli)
+    # 2. common user-local install location
+    local_cli = Path.home() / ".local" / "bin" / "integral-radiomics"
+    if local_cli.exists():
+        return str(local_cli)
 
     return None
+
+
+def format_percent(value: float, decimals: int = 3) -> str:
+    percent = f"{value * 100:.{decimals}f}"
+    return f"{percent.rstrip('0').rstrip('.')}%"

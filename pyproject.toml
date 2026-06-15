@@ -16,23 +16,8 @@ dependencies = [
     "torchvision==0.14.1+cpu",    
     
     # PyRadiomics stack
-    "docopt==0.6.2",
-    "lazy-loader==0.5",
-    "networkx==3.4.2",
-    "packaging==26.2",
-    "pillow==12.2.0",
-    "pykwalify==1.8.0",
-    "pyradiomics==3.0.1",
-    "python-dateutil==2.9.0.post0",
-    "PyWavelets==1.8.0",
-    "ruamel.yaml==0.19.1",
     "scikit-image<0.23",
     "scipy==1.13.1",
-    "simpleitk==2.5.5",
-    "six==1.17.0",
-    "tifffile==2024.8.30",
-    "trimesh==3.23.5",
-    "versioneer==0.29"
 ]
 
 [tool.uv]

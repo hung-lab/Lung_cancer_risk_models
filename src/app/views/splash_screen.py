@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 
 import customtkinter as ctk
 
-from app.config.settings import ERROR_COLOUR
+from app.config.settings import ERROR_COLOUR, SUCCESS_COLOUR
 from app.utils.helpers import center_window
 from app.utils.ui_config import SPACE_SM, SPACE_XL, SPACE_XS
 
@@ -40,6 +40,13 @@ class SplashScreen:
         self._root = root
         self._bus = bus
 
+        self._sybil_done = False
+        self._integral_done = False
+        self._integral_error = False
+        self._fatal_error = False
+        self._closed = False
+        self._elapsed = 0
+
         self._win = ctk.CTkToplevel(root)
         self._win.title("Loading…")
         self._win.resizable(False, False)
@@ -55,8 +62,8 @@ class SplashScreen:
         self._win.focus_force()
         self._win.grab_set()
 
-        self._closed = False
         bus.subscribe(self._handle_event)
+        self._tick()
 
     # ── build ──────────────────────────────────────────────────────────────
 
@@ -85,20 +92,54 @@ class SplashScreen:
         self._bar.configure(mode="indeterminate")
         self._bar.start()
 
-        self._status = ctk.CTkLabel(
+        self._sybil_status = ctk.CTkLabel(
             inner,
-            text="Loading model weights…",
+            text="⏳ Loading Sybil model weights…",
             font=ctk.CTkFont(size=12),
             text_color="gray60",
+            anchor="w",
         )
-        self._status.pack(pady=(SPACE_SM, 0))
+        self._sybil_status.pack(pady=(SPACE_SM, 0), fill="x")
+
+        self._integral_status = ctk.CTkLabel(
+            inner,
+            text="⏳ Checking R / INTEGRAL-Radiomics setup…",
+            font=ctk.CTkFont(size=12),
+            text_color="gray60",
+            anchor="w",
+        )
+        self._integral_status.pack(pady=(2, 0), fill="x")
+
+        self._elapsed_label = ctk.CTkLabel(
+            inner,
+            text="0s elapsed",
+            font=ctk.CTkFont(size=11),
+            text_color="gray50",
+        )
+        self._elapsed_label.pack(pady=(SPACE_SM, 0))
 
         ctk.CTkLabel(
             inner,
-            text="First run: model weights will be downloaded to ~/.sybil/",
+            text=(
+                "First run: model weights are downloaded to ~/.sybil/ and R "
+                "packages may be installed — this can take a few minutes."
+            ),
             font=ctk.CTkFont(size=11),
             text_color="gray50",
+            justify="center",
+            wraplength=400,
         ).pack(pady=(SPACE_SM, 0))
+
+    # ── elapsed timer ──────────────────────────────────────────────────
+
+    def _tick(self) -> None:
+        if self._closed:
+            return
+        self._elapsed += 1
+        mins, secs = divmod(self._elapsed, 60)
+        text = f"{mins}m {secs:02d}s elapsed" if mins else f"{secs}s elapsed"
+        self._elapsed_label.configure(text=text)
+        self._root.after(1000, self._tick)
 
     # ── event handling ──────────────────────────────────────────────────────
 
@@ -108,21 +149,73 @@ class SplashScreen:
             return
 
         if event.type == "log" and event.message:
-            self._status.configure(text=event.message)
+            if event.data and event.data.get("channel") == "integral":
+                self._integral_status.configure(text=f"⏳ {event.message}")
+            else:
+                self._sybil_status.configure(text=f"⏳ {event.message}")
+
+        elif event.type == "model_ready":
+            self._sybil_done = True
+            self._sybil_status.configure(
+                text="✓ Sybil model ready", text_color=SUCCESS_COLOUR
+            )
+            self._maybe_finish()
+
+        elif event.type == "model_error":
+            self._fatal_error = True
+            self._show_fatal_error(event.message or "Model failed to load.")
 
         elif event.type == "ui_state":
-            if event.message == "install_failed":
-                self._show_error(
-                    "Failed to install integral radiomics cli and R packages"
+            if event.message in ("integral_radiomics_ready", "install_complete"):
+                self._integral_done = True
+                self._integral_status.configure(
+                    text="✓ INTEGRAL-Radiomics ready", text_color=SUCCESS_COLOUR
                 )
+                self._maybe_finish()
+
+            elif event.message == "install_failed":
+                self._integral_done = True
+                self._integral_error = True
+                self._integral_status.configure(
+                    text="✗ INTEGRAL-Radiomics install failed — see Activity Log. "
+                    "That tab will be unavailable.",
+                    text_color=ERROR_COLOUR,
+                )
+                self._maybe_finish()
+
             elif event.message == "R_missing":
-                self._show_error(
-                    "R is not installed. Download and install from https://github.com/r-lib/rig"
+                self._integral_done = True
+                self._integral_error = True
+                self._integral_status.configure(
+                    text="✗ R not found — INTEGRAL tab will be unavailable.",
+                    text_color=ERROR_COLOUR,
                 )
-        elif event.type == "model_ready":
+                self._maybe_finish()
+
+    # ── finish logic ──────────────────────────────────────────────────────
+
+    def _maybe_finish(self) -> None:
+        if self._fatal_error:
+            return
+        if not (self._sybil_done and self._integral_done):
+            return
+
+        if self._integral_error:
+            self._show_continue()
+        else:
             self._close_and_show()
-        elif event.type == "model_error":
-            self._show_error(event.message or "Model failed to load.")
+
+    def _show_continue(self) -> None:
+        self._bar.stop()
+        self._bar.configure(mode="determinate")
+        self._bar.set(1.0)
+
+        ctk.CTkButton(
+            self._win,
+            text="Continue",
+            width=120,
+            command=self._close_and_show,
+        ).place(relx=0.5, rely=0.88, anchor="center")
 
     def _close_and_show(self) -> None:
         self._closed = True
@@ -132,15 +225,13 @@ class SplashScreen:
         self._win.destroy()
         self._root.deiconify()
 
-    def _show_error(self, message: str) -> None:
-        """Replace the progress bar with an error message + quit button."""
+    def _show_fatal_error(self, message: str) -> None:
         self._bar.stop()
         self._bar.configure(mode="determinate")
         self._bar.set(0)
 
-        self._status.configure(
-            text=f"Error: {message}",
-            text_color=ERROR_COLOUR,
+        self._sybil_status.configure(
+            text=f"✗ Error: {message}", text_color=ERROR_COLOUR
         )
 
         ctk.CTkButton(

@@ -14,6 +14,7 @@ from app.models.patient_model import (
     IntegralRadiomicsInput,
 )
 from app.utils.event_bus import AppEvent
+from app.utils.helpers import format_percent
 from app.utils.ui_config import (
     BUTTON_GAP,
     CARD_PAD_X,
@@ -51,21 +52,16 @@ class IntegralView:
         self.validator = IntegralValidator()
 
         # ── clinical vars ───────────────────────────────
-        self._age_var = tk.StringVar(value="67")
+        self._age_var = tk.StringVar()
         self._gender_var = tk.StringVar(value="Male")
-        self._fhlc_var = tk.BooleanVar(value=True)
+        self._fhlc_var = tk.BooleanVar(value=False)
         self._copd_var = tk.BooleanVar(value=False)
-        self._former_smoker_var = tk.BooleanVar(value=True)
+        self._former_smoker_var = tk.BooleanVar(value=False)
 
-        self._duration_var = tk.StringVar(value="38")
-        self._cigday_var = tk.StringVar(value="18")
-        self._quit_var = tk.StringVar(value="6")
-        self._bmi_var = tk.StringVar(value="27.4")
-
-        # ── IDs (optional) ──────────────────────────────
-        self._study_var = tk.StringVar(value="1")
-        self._pid_var = tk.StringVar(value="1")
-        self._nid_var = tk.StringVar(value="1")
+        self._duration_var = tk.StringVar()
+        self._cigday_var = tk.StringVar()
+        self._quit_var = tk.StringVar()
+        self._bmi_var = tk.StringVar()
 
         # ── files (image and mask scans) ────────────────
         self._image_file_var = tk.StringVar(value="No file selected")
@@ -192,9 +188,9 @@ class IntegralView:
 
         self._switch(p, "Family lung cancer history", self._fhlc_var)
         self._switch(p, "COPD / emphysema", self._copd_var)
-        self._switch(p, "Former smoker", self._former_smoker_var)
 
     def _build_smoking(self, p):
+        self._switch(p, "Former smoker", self._former_smoker_var)
         self._entry(
             p,
             "duration",
@@ -384,7 +380,7 @@ class IntegralView:
     # ─────────────────────────────── ACTIONS ──────────────────────────────
 
     def _browse(self, file_var, file_error) -> None:
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename(filetypes=[("NRRD files", "*.nrrd")])
         if file_path:
             file_var.set(file_path)
             file_error.set("")
@@ -416,8 +412,6 @@ class IntegralView:
         self._cigday_var.set("")
         self._quit_var.set("0")
         self._bmi_var.set("")
-        self._study_var.set("")
-        self._pid_var.set("")
         self._image_file_var.set("No file selected")
         self._mask_file_var.set("No file selected")
         self._clear_errors()
@@ -537,9 +531,6 @@ class IntegralView:
             epi_cigday=cigday,
             epi_quittime=quit_time,
             epi_bmi=bmi,
-            study=self._study_var.get() or None,
-            pid=self._pid_var.get() or None,
-            nid=self._nid_var.get() or None,
             image_file=self._image_file_var.get(),
             mask_file=self._mask_file_var.get(),
         )
@@ -551,7 +542,8 @@ class IntegralView:
     # ─────────────────────────────── RESULTS ─────────────────────────────
     def _format_result(self, lung_cancer_prob):
         return {
-            "Lung Cancer Probabilty": f"{lung_cancer_prob:.1%}",
+            "Lung Cancer Probability": lung_cancer_prob,
+            "Lung Cancer Probability Percentage": format_percent(lung_cancer_prob),
         }
 
     def _show_results(self, status_text: str) -> None:

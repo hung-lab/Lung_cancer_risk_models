@@ -9,8 +9,8 @@ class BaseController:
     def _emit(self, event: AppEvent):
         self.bus.emit(event)
 
-    def _log(self, message: str, level: str = "INFO"):
-        self._emit(AppEvent(type="log", message=message, level=level))
+    def _log(self, message: str, level: str = "INFO", data: dict | None = None):
+        self._emit(AppEvent(type="log", message=message, level=level, data=data))
 
     def _progress(self, value: float):
         self._emit(AppEvent(type="progress", value=value))

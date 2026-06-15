@@ -54,81 +54,98 @@ class AppController(BaseController):
         self.bus.emit(AppEvent(type="app", message="quit"))
 
     def check_and_install_integral(self):
-        """Returns (available, message)."""
+        """Check/install integralrad safely on app launch."""
+        CH = {"channel": "integral"}
 
-        self._log("Checking R dependencies")
+        try:
+            self._log("Checking R dependencies", data=CH)
 
-        # Step 1: R itself must be installed by the user
-        if not shutil.which("Rscript"):
-            self._error(
-                "R is not installed. Download and install from https://github.com/r-lib/rig"
-            )
-            self._emit(AppEvent(type="ui_state", message="R_missing"))
-            return
+            # ───────────────────────────────
+            # 1. Check R exists
+            # ───────────────────────────────
+            if not shutil.which("Rscript"):
+                self._log("R is not installed", level="ERROR", data=CH)
+                self._emit(AppEvent(type="ui_state", message="R_missing"))
+                return
 
-        user_bin = Path.home() / ".local" / "bin"
-        os.environ["PATH"] = f"{user_bin}:{os.environ.get('PATH', '')}"
+            # ───────────────────────────────
+            # 2. PATH for CLI
+            # ───────────────────────────────
+            user_bin = Path.home() / ".local" / "bin"
+            os.environ["PATH"] = f"{user_bin}:{os.environ.get('PATH', '')}"
 
-        cli = find_integral_cli()
+            if find_integral_cli():
+                self._log("integral-radiomics already installed", data=CH)
+                self._emit(
+                    AppEvent(type="ui_state", message="integral_radiomics_ready")
+                )
+                return
 
-        if cli:
-            self._log("integral-radiomics is ready")
-            self._emit(AppEvent(type="ui_state", message="integral_radiomics_ready"))
-            return
+            self._log("Installing integralrad (first run setup)…", data=CH)
 
-        self._log("Auto installing R packages and integral-radiomics")
+            # ───────────────────────────────
+            # 3. Stable R library path
+            # ───────────────────────────────
+            r_lib = Path.home() / "R" / "library"
+            r_lib.mkdir(parents=True, exist_ok=True)
 
-        r_lib = Path.home() / "R" / "library"
+            # ───────────────────────────────
+            # 4. CLEAN R SCRIPT (NO INDENTATION, NO MIXED SYSTEMS)
+            # ───────────────────────────────
+            r_script = f"""
+        options(repos = c(CRAN = "https://cloud.r-project.org"))
 
-        install_cmd = f"""
-        dir.create("{r_lib}", recursive=TRUE, showWarnings=FALSE)
-
-        if (!requireNamespace("pak", quietly=TRUE)) {{
-        install.packages(
-            "pak",
-            repos="https://cloud.r-project.org",
-            lib="{r_lib}"
-        )
-        }}
-
+        Sys.setenv(R_LIBS_USER = "{r_lib}")
         .libPaths(c("{r_lib}", .libPaths()))
 
-        pak::pak("mattwarkentin/INTEGRAL-Radiomics")
+        if (!requireNamespace("remotes", quietly = TRUE)) {{
+            install.packages("remotes")
+        }}
 
-        library(Rapp)
+        remotes::install_github("mattwarkentin/INTEGRAL-Radiomics", upgrade = "never")
+
         library(integralrad)
 
-        Rapp::install_pkg_cli_apps("Rapp")
         integralrad::install_integralrad_cli()
         """
 
-        env = os.environ.copy()
-        env["R_LIBS_USER"] = str(r_lib)
-        env["PATH"] = f"{user_bin}:{env.get('PATH', '')}"
+            script_path = Path("/tmp/install_integralrad.R")
+            script_path.write_text(r_script)
 
-        try:
-            result = subprocess.run(
-                ["Rscript", "-e", install_cmd],
-                env=env,
-                capture_output=True,
-                text=True,
-                check=True,
-            )
+            # ───────────────────────────────
+            # 5. SAFE ENV
+            # ───────────────────────────────
+            env = os.environ.copy()
+            env["R_LIBS_USER"] = str(r_lib)
+            env["TMPDIR"] = "/tmp"
+            env["HOME"] = str(Path.home())
 
-            if result.stdout:
-                self._log(result.stdout)
+            try:
+                subprocess.run(
+                    ["Rscript", "--vanilla", str(script_path)],
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
 
-        except subprocess.CalledProcessError as e:
-            self._log(f"Install failed:\n{e.stderr}")
-            self._emit(AppEvent(type="ui_state", message="install_failed"))
-            return
+            except subprocess.CalledProcessError as e:
+                self._log(f"Install failed:\n{e.stderr}", level="ERROR", data=CH)
+                self._emit(AppEvent(type="ui_state", message="install_failed"))
+                return
 
-        # Verify install
-        if cli:
-            self._log(f"Installation complete: {cli}")
-            self._emit(AppEvent(type="ui_state", message="install_complete"))
-        else:
-            self._log(
-                "Installation finished but integral-radiomics executable was not found"
-            )
+            # ───────────────────────────────
+            # 6. VERIFY
+            # ───────────────────────────────
+            if find_integral_cli():
+                self._log("integralrad installed successfully", data=CH)
+                self._emit(AppEvent(type="ui_state", message="install_complete"))
+            else:
+                self._log("Install finished but CLI not found", level="ERROR", data=CH)
+                self._emit(AppEvent(type="ui_state", message="install_failed"))
+
+        except Exception as exc:
+            # Safety net so the splash screen never waits forever if
+            # something unexpected blows up here.
+            self._log(f"Unexpected error during R setup: {exc}", level="ERROR", data=CH)
             self._emit(AppEvent(type="ui_state", message="install_failed"))

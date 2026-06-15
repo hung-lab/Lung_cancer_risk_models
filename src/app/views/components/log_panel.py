@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import customtkinter as ctk
 
@@ -75,7 +76,12 @@ class LogPanel:
 
     def handle_event(self, event: AppEvent) -> None:
         if event.type == "log":
-            self.log(event.message or "", event.level)
+            msg = event.message or ""
+
+            if event.data:
+                msg += "\n" + json.dumps(event.data, indent=2)
+
+            self.log(msg, event.level)
 
         if event.type == "ui_theme":
             self.update_tag_colours(event.message)
