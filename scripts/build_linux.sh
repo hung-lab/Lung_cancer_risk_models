@@ -277,7 +277,7 @@ create_deb() {
     mkdir -p "$PKG_DIR/usr/bin"
 
     # Copy application
-    cp -r dist/lunPulmoRiskg/* "$PKG_DIR/opt/PulmoRisk/"
+    cp -r dist/PulmoRisk/* "$PKG_DIR/opt/PulmoRisk/"
 
 # Create symlink for gui
 cat > "$PKG_DIR/usr/bin/PulmoRisk" << 'EOF'
