@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.3](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.3.2...v1.3.3) (2026-06-15)
+
+
+### Bug Fixes
+
+* linux build ([6c8d969](https://github.com/hung-lab/Lung_cancer_risk_models/commit/6c8d96928b8641b96c77633769dfb32d28dfa24e))
+
 ## [1.3.2](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.3.1...v1.3.2) (2026-06-15)
 
 
