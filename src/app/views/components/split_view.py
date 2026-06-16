@@ -31,8 +31,8 @@ class SplitView:
         )
 
         self.home_tab = self.tabs.add("Home")
-        self.sybil_tab = self.tabs.add("Sybil Epi")
-        self.integral_tab = self.tabs.add("Integral Radiomics")
+        self.sybil_tab = self.tabs.add("Sybil-Epi")
+        self.integral_tab = self.tabs.add("INTEGRAL-Radiomics")
 
         # ── log panel ─────────────────────────────────────────────────────
         self.log_panel = ctk.CTkFrame(self.root, width=400, border_width=0)

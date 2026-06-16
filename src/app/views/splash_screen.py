@@ -76,13 +76,13 @@ class SplashScreen:
 
         ctk.CTkLabel(
             inner,
-            text="Lung Cancer Risk Model",
+            text="Lung Cancer Risk Estimation",
             font=ctk.CTkFont(size=22, weight="bold"),
         ).pack(pady=(0, SPACE_XS))
 
         ctk.CTkLabel(
             inner,
-            text="Powered by Sybil · EPI Ensemble",
+            text="Powered by Sybil-Epi · INTEGRAL-Radiomics Ensemble",
             font=ctk.CTkFont(size=13),
             text_color="gray60",
         ).pack(pady=(0, SPACE_XL))

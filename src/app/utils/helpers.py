@@ -126,3 +126,28 @@ def find_integral_cli() -> str | None:
 def format_percent(value: float, decimals: int = 3) -> str:
     percent = f"{value * 100:.{decimals}f}"
     return f"{percent.rstrip('0').rstrip('.')}%"
+
+
+def find_rscript():
+    candidates = [
+        shutil.which("Rscript"),
+        "/opt/homebrew/bin/Rscript",  # Apple Silicon Homebrew
+        "/usr/local/bin/Rscript",  # Intel Homebrew
+        "/Library/Frameworks/R.framework/Resources/bin/Rscript",  # CRAN macOS install
+    ]
+
+    for candidate in candidates:
+        if candidate and Path(candidate).exists():
+            try:
+                result = subprocess.run(
+                    [candidate, "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode == 0:
+                    return candidate
+            except Exception:
+                pass
+
+    return None

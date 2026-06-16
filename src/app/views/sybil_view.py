@@ -315,8 +315,8 @@ class SybilView:
     # ─────────────────────────────── FORM SECTIONS ───────────────────────
 
     def _build_patient(self, p: ctk.CTkFrame) -> None:
-        self._entry(p, "age", "Age", self._age_var, self._age_error_var)
-        self._entry(p, "bmi", "BMI", self._bmi_var, self._bmi_error_var)
+        self._entry(p, "age", "Age (years)", self._age_var, self._age_error_var)
+        self._entry(p, "bmi", "BMI (kg/m2)", self._bmi_var, self._bmi_error_var)
         self._dropdown(p, "Education", self._education_var, list(EDUCATION_OPTIONS))
         self._dropdown(p, "Ethnicity", self._ethnicity_var, list(ETHNICITY_OPTIONS))
 
@@ -344,7 +344,7 @@ class SybilView:
         self._entry(
             p,
             "smoking_quit",
-            "Quit time (years ago)",
+            "Quit time (years)",
             self._smoking_quit_time_var,
             self._smoking_quit_time_error_var,
         )
@@ -596,10 +596,10 @@ class SybilView:
         # ── validate fields ─────────────────────────
 
         age, age_errors = validate_field(
-            "age", self._age_var, self._age_error_var, "Age", 0, 200
+            "age", self._age_var, self._age_error_var, "Age", 0, 99
         )
         bmi, bmi_errors = validate_field(
-            "bmi", self._bmi_var, self._bmi_error_var, "BMI", 0, 100
+            "bmi", self._bmi_var, self._bmi_error_var, "BMI", 0, 99
         )
         smoking_dur, smoking_dur_errors = validate_field(
             "smoking_duration",
@@ -607,7 +607,7 @@ class SybilView:
             self._smoking_duration_error_var,
             "Smoking duration",
             0,
-            200,
+            99,
         )
         smoking_intensity, smoking_intensity_errors = validate_field(
             "smoking_intensity",
@@ -623,7 +623,7 @@ class SybilView:
             self._smoking_quit_time_error_var,
             "Smoking quit time",
             0,
-            200,
+            99,
         )
         six_year_risk = None
         six_year_risk_errors = []

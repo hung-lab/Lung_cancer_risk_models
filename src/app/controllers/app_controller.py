@@ -1,5 +1,4 @@
 import os
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -8,7 +7,7 @@ import customtkinter as ctk
 
 from app.controllers.base_controller import BaseController
 from app.utils.event_bus import AppEvent, EventBus
-from app.utils.helpers import find_integral_cli
+from app.utils.helpers import find_integral_cli, find_rscript
 
 os.environ["CURL_CA_BUNDLE"] = certifi.where()
 
@@ -66,11 +65,17 @@ class AppController(BaseController):
             # ───────────────────────────────
             # 1. Check R exists
             # ───────────────────────────────
-            if not shutil.which("Rscript"):
-                self._log("R is not installed", level="ERROR", data=CH)
+            rscript_path = find_rscript()
+            if not rscript_path:
+                self._log(
+                    "R is not installed or Rscript could not be found",
+                    level="ERROR",
+                    data=CH,
+                )
                 self._emit(AppEvent(type="ui_state", message="R_missing"))
                 return
 
+            self._log(f"Using Rscript at: {rscript_path}", level="INFO", data=CH)
             # ───────────────────────────────
             # 2. PATH for CLI
             # ───────────────────────────────
@@ -125,7 +130,7 @@ class AppController(BaseController):
 
             try:
                 subprocess.run(
-                    ["Rscript", "--vanilla", str(script_path)],
+                    [rscript_path, "--vanilla", str(script_path)],
                     env=env,
                     capture_output=True,
                     text=True,

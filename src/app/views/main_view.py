@@ -49,17 +49,17 @@ class MainWindow:
             padx=CARD_PAD_Y,
             pady=CARD_PAD_Y,
         )
-        content.grid_rowconfigure(0, weight=0)
-        content.grid_rowconfigure(1, weight=1)
+        content.grid_rowconfigure(0, weight=1)
+        content.grid_rowconfigure(1, weight=0)
         content.grid_columnconfigure(0, weight=1)
 
         # ── intro textbox ─────────────────────────────────────────────────────
 
         text = ctk.CTkTextbox(
-            content, wrap="word", border_width=0, height=260, fg_color="transparent"
+            content, wrap="word", border_width=0, fg_color="transparent"
         )
         text.grid(
-            row=0, column=0, sticky="ew", padx=SPACE_MD, pady=(SPACE_MD, SPACE_XS)
+            row=0, column=0, sticky="nsew", padx=SPACE_MD, pady=(SPACE_MD, SPACE_XS)
         )
 
         def _add_link(label: str, url: str) -> None:
@@ -93,8 +93,13 @@ class MainWindow:
             "combined with other 11 clinical risk factors, which are: age, BMI, education level, ethnicity, COPD history, "
             "family lung cancer history, personal cancer history, smoking status, smoking duration, smoking intensity, "
             "and smoking quit time.  "
-            "More information on Sybil-Epi can be a found at https://journal.chestnet.org/article/S0012-3692(26)00296-5/fulltext. ",
+            "More information on Sybil-Epi can be a found at ",
         )
+        _add_link(
+            "https://journal.chestnet.org/article/S0012-3692(26)00296-5/fulltext.",
+            "https://journal.chestnet.org/article/S0012-3692(26)00296-5/fulltext",
+        )
+        text.insert("end", "\n\n")
         _add_link("View on GitHub", "https://github.com/hung-lab/Sybil-Epi")
         text.insert("end", "\n\n")
 
