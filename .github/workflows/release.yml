@@ -175,7 +175,7 @@ jobs:
             --window-size 400 200 \
             --icon-size 100 \
             --app-drop-link 300 100 \
-            dist/PulmoRisk-mac-${{ matrix.arch }}.dmg \
+            dist/PulmoRisk-mac-${VERSION}-${{ matrix.arch }}.dmg \
             dist/PulmoRisk.app
 
           if [ ! -f "dist/PulmoRisk-mac-${VERSION}-${{ matrix.arch }}.dmg" ]; then
