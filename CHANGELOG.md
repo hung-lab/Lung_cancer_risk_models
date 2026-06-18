@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.4.0...v1.4.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* issue related to installing R package on mac or finding it ([8d435cf](https://github.com/hung-lab/Lung_cancer_risk_models/commit/8d435cf23343576286c9bcde59886a7363424471))
+
 ## [1.4.0](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.3.9...v1.4.0) (2026-06-17)
 
 
