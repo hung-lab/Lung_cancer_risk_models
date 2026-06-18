@@ -7,7 +7,7 @@ import customtkinter as ctk
 
 from app.controllers.base_controller import BaseController
 from app.utils.event_bus import AppEvent, EventBus
-from app.utils.helpers import find_integral_cli, find_rscript
+from app.utils.helpers import find_integral_cli, find_rscript, r_package_installed
 
 os.environ["CURL_CA_BUNDLE"] = certifi.where()
 
@@ -104,8 +104,19 @@ class AppController(BaseController):
             user_bin = Path.home() / ".local" / "bin"
             os.environ["PATH"] = f"{user_bin}:{os.environ.get('PATH', '')}"
 
-            if find_integral_cli():
-                self._log("integral-radiomics already installed", data=CH)
+            if not r_package_installed(rscript_path, "integralrad"):
+                self._log(
+                    "integralrad not found in R library — will install now…",
+                    level="WARNING",
+                    data=CH,
+                )
+                # falls through to the install script below
+
+            cli_path = find_integral_cli()
+            if cli_path:
+                self._log(
+                    f"integral-radiomics already installed at: {cli_path}", data=CH
+                )
                 self._emit(
                     AppEvent(type="ui_state", message="integral_radiomics_ready")
                 )
@@ -218,8 +229,9 @@ cat("integralrad OK\\n")
                 return
 
             # ── 7. Verify CLI exists ──────────────────────────────────────
-            if find_integral_cli():
-                self._log("integralrad installed successfully", data=CH)
+            cli_path = find_integral_cli()
+            if cli_path:
+                self._log(f"integralrad installed successfully at: {cli_path}", data=CH)
                 self._emit(AppEvent(type="ui_state", message="install_complete"))
             else:
                 self._log(

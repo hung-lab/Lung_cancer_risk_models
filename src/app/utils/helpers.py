@@ -126,6 +126,21 @@ def validate_file_path(path: Path, field_name: str) -> None:
         raise InvalidFileError(field_name, "not a nrrd file")
 
 
+def r_package_installed(rscript: str, package: str) -> bool:
+    r_lib = str(Path.home() / ".pulmorisk" / "r" / "library")
+    r_code = (
+        f'.libPaths(c("{r_lib}", .libPaths())); '
+        f'quit(status = ifelse(requireNamespace("{package}", quietly = TRUE), 0, 1))'
+    )
+    result = subprocess.run(
+        [rscript, "-e", r_code],
+        capture_output=True,
+        text=True,
+        env={**os.environ, "R_LIBS_USER": r_lib},
+    )
+    return result.returncode == 0
+
+
 def find_rscript() -> str | None:
     """Locate the Rscript executable.
 
@@ -160,6 +175,15 @@ def find_rscript() -> str | None:
             Path(
                 "/Library/Frameworks/R.framework/Versions/Current/Resources/bin/Rscript"
             ),
+            Path.home()
+            / ".local"
+            / "share"
+            / "rig"
+            / "R"
+            / "current"
+            / "bin"
+            / "Rscript",
+            Path(Path.home() / ".rig" / "R" / "current" / "bin" / "Rscript"),
         ]
     elif sys.platform.startswith("linux"):
         candidates = [
@@ -237,6 +261,7 @@ def find_integral_cli() -> str | None:
         / cli_name,
         # Rapp can also install into the R user data dir on Linux
         Path.home() / ".local" / "share" / "R" / "Rapp" / "bin" / cli_name,
+        Path.home() / "Library" / "R" / "Rapp" / "bin" / cli_name,
     ]
 
     for candidate in candidates:

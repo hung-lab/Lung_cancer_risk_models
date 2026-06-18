@@ -16,7 +16,6 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Run Release Please
         id: release
@@ -24,18 +23,6 @@ jobs:
         with:
           release-type: simple
           target-branch: main
-
-      - name: Compute version
-        id: version
-        run: |
-          if [ "${{ steps.release.outputs.release_created }}" != "true" ]; then
-            echo "version=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          TAG="${{ steps.release.outputs.tag_name }}"
-          VERSION="${TAG#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   build-linux:
     needs: release
@@ -68,12 +55,12 @@ jobs:
 
       - name: Generate version.py
         env:
-          VERSION: ${{ needs.release.outputs.version }}
+          VERSION: ${{ needs.release.outputs.tag_name }}
         run: |
           DATE=$(date +%F)
 
           cat > src/app/config/version.py << EOF
-          VERSION = "${VERSION}"
+          VERSION = "${VERSION#v}"
           BUILD_DATE = "${DATE}"
           EOF
 
@@ -124,12 +111,12 @@ jobs:
       - name: Generate version.py
         shell: pwsh
         env:
-          VERSION: ${{ needs.release.outputs.version }}
+          TAG_NAME: ${{ needs.release.outputs.tag_name }}
         run: |
           $DATE = Get-Date -Format "yyyy-MM-dd"
 
           @"
-          VERSION = '$env:VERSION'
+          $VERSION = $env:TAG_NAME -replace '^v',''
           BUILD_DATE = '$DATE'
           "@ | Set-Content src/app/config/version.py
 
@@ -198,12 +185,12 @@ jobs:
 
       - name: Generate version.py
         env:
-          VERSION: ${{ needs.release.outputs.version }}
+          TAG_NAME: ${{ needs.release.outputs.tag_name }}
         run: |
           DATE=$(date +%F)
 
           cat > src/app/config/version.py << EOF
-          VERSION = "${VERSION}"
+          VERSION="${TAG_NAME#v}"
           BUILD_DATE = "${DATE}"
           EOF
 
