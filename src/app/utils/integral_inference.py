@@ -7,13 +7,13 @@ from typing import TypeAlias
 
 import pandas as pd
 
-from app.models.patient_model import IntegralClinicalData
+from app.models.individual_model import IntegralClinicalData
 from app.utils.helpers import find_rscript
 
 prediction: TypeAlias = tuple[float, float]
 
 
-def run_inference_pipeline(patient: IntegralClinicalData) -> prediction:
+def run_inference_pipeline(individual: IntegralClinicalData) -> prediction:
     """
     Pure inference pipeline:
     - no UI
@@ -23,7 +23,7 @@ def run_inference_pipeline(patient: IntegralClinicalData) -> prediction:
     """
 
     try:
-        path = Path(patient.image_file)
+        path = Path(individual.image_file)
 
         if not path.exists():
             raise ValueError(f"Image file Path does not exist: {path}")
@@ -31,7 +31,7 @@ def run_inference_pipeline(patient: IntegralClinicalData) -> prediction:
         if not path.is_file():
             raise ValueError(f"Image not a file: {path}")
 
-        path = Path(patient.mask_file)
+        path = Path(individual.mask_file)
 
         if not path.exists():
             raise ValueError(f"Mask file Path does not exist: {path}")
@@ -49,17 +49,17 @@ def run_inference_pipeline(patient: IntegralClinicalData) -> prediction:
         df = pd.DataFrame(
             [
                 {
-                    "image": patient.image_file,
-                    "mask": patient.mask_file,
-                    "age": patient.age,
-                    "sex": 1 if patient.female else 0,
-                    "bmi": patient.bmi,
-                    "fhlc": patient.fhlc,
-                    "copdemph": patient.copdemph,
-                    "formersmk": patient.formersmk,
-                    "duration": patient.duration,
-                    "cigday": patient.cigday,
-                    "quittime": patient.quittime,
+                    "image": individual.image_file,
+                    "mask": individual.mask_file,
+                    "age": individual.age,
+                    "sex": 1 if individual.female else 0,
+                    "bmi": individual.bmi,
+                    "fhlc": individual.fhlc,
+                    "copdemph": individual.copdemph,
+                    "formersmk": individual.formersmk,
+                    "duration": individual.duration,
+                    "cigday": individual.cigday,
+                    "quittime": individual.quittime,
                 }
             ]
         )

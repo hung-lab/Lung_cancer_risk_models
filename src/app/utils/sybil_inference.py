@@ -4,11 +4,11 @@ from sybil.serie import Serie
 
 from app.utils.sybil_epi import (
     calculate_sybil_epi_score,
-    epi_input_from_patient_data,
+    epi_input_from_individual_data,
 )
 
 
-def run_sybil_pipeline(model, patient) -> float:
+def run_sybil_pipeline(model, individual) -> float:
     """
     Pure inference pipeline:
     - no UI
@@ -17,7 +17,7 @@ def run_sybil_pipeline(model, patient) -> float:
     - deterministic output
     """
 
-    path = Path(patient.ct_scan_dir)
+    path = Path(individual.ct_scan_dir)
 
     if not path.exists():
         raise ValueError(f"Path does not exist: {path}")
@@ -35,5 +35,5 @@ def run_sybil_pipeline(model, patient) -> float:
 
     scores = prediction.scores[0]
 
-    epi_in = epi_input_from_patient_data(patient, scores[5])
+    epi_in = epi_input_from_individual_data(individual, scores[5])
     return calculate_sybil_epi_score(epi_in)

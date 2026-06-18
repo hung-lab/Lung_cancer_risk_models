@@ -92,7 +92,7 @@ class RunningOverlay:
 
     def enable_batch_mode(self):
         self._batch_bar.set(0)
-        self._batch_label.configure(text="0 / 0 patients")
+        self._batch_label.configure(text="0 / 0 individuals")
 
         self._cancel_btn.configure(
             text="Cancel Batch",
@@ -147,7 +147,7 @@ class RunningOverlay:
         value = current / total
 
         self._batch_bar.set(value)
-        self._batch_label.configure(text=f"{current} / {total} patients")
+        self._batch_label.configure(text=f"{current} / {total} individuals")
 
     def set_cancel_callback(self, callback):
         self._cancel_callback = callback
@@ -192,7 +192,7 @@ class RunningOverlay:
 
         self._batch_label = ctk.CTkLabel(
             self._batch_frame,
-            text="0 / 0 patients",
+            text="0 / 0 individuals",
             font=ctk.CTkFont(size=12),
             text_color="gray60",
         )
@@ -255,7 +255,7 @@ class RunningOverlay:
         if self._cancel_callback:
             self._cancel_callback()
 
-        self._stage_label.configure(text="Cancelling after current patient...")
+        self._stage_label.configure(text="Cancelling after current individual...")
 
         self._cancel_btn.configure(
             text="Cancelling...",

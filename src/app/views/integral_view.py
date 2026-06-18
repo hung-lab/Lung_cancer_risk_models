@@ -14,7 +14,7 @@ from app.config.settings import (
     WARNING_COLOUR,
     WARNING_COLOUR_HOVER,
 )
-from app.models.patient_model import (
+from app.models.individual_model import (
     IntegralClinicalData,
     ModelValidationError,
 )
@@ -173,7 +173,7 @@ class IntegralView:
         self._subtitle.pack(anchor="w", pady=(0, SPACE_LG))
 
         # ─────────────────────────────────────────────────────────────
-        # Single patient UI
+        # Single individual UI
         # ─────────────────────────────────────────────────────────────
         self._single_frame = ctk.CTkFrame(
             self.container,
@@ -211,7 +211,7 @@ class IntegralView:
         ctk.CTkLabel(
             batch_card,
             text=(
-                "Upload a CSV containing patient metadata and CT scan image and mask files.\n\n"
+                "Upload a CSV containing individual metadata and CT scan image and mask files.\n\n"
                 "Required columns:\n"
                 "- image_file (Path to image (NRRD format))\n"
                 "- mask_file (Path to nodule mask (NRRD format))\n"
@@ -742,7 +742,7 @@ class IntegralView:
                 current,
                 total,
             )
-            self._overlay.set_stage(f"Running patient {current} of {total}")
+            self._overlay.set_stage(f"Running individual {current} of {total}")
         # ───────────────────────────── LOGGING ──────────────────────────────
         elif event.type == "log":
             if self._running and event.message:

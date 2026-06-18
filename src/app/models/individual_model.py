@@ -1,7 +1,7 @@
 """Data models with built-in validation.
 
 Validation runs automatically in ``__post_init__`` so every construction
-path — single-patient UI, batch CSV, or future API — gets the same checks.
+path — single-individual UI, batch CSV, or future API — gets the same checks.
 
 Catch ``ModelValidationError`` to get field-level details for UI highlighting:
 
@@ -77,7 +77,7 @@ def _check_choice(
 
 @dataclass
 class SybilInputData:
-    """Patient data for the Sybil-EPI lung cancer risk model.
+    """individual data for the Sybil-EPI lung cancer risk model.
 
     Raises:
         ModelValidationError: if any field is outside its valid range.

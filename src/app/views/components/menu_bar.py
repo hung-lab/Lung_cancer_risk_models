@@ -96,7 +96,7 @@ class MenuBar:
     # ──────────────────────────────────────────────── commands ──
 
     def start_a_new_run(self) -> None:
-        """Reset the Sybil form for a fresh patient entry."""
+        """Reset the form for a fresh entry."""
         self.controller.new_run()
 
     def destroy(self) -> None:

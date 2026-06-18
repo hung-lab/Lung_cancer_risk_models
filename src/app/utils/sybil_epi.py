@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models.patient_model import SybilInputData
+    from app.models.individual_model import SybilInputData
 
 # ---------------------------------------------------------------------------
 # Ensemble model coefficients
@@ -195,36 +195,36 @@ def calculate_sybil_epi_score(inputs: EpiInput) -> float:
     return total_prob / len(_MODELS)
 
 
-def epi_input_from_patient_data(
-    patient: SybilInputData,
+def epi_input_from_individual_data(
+    individual: SybilInputData,
     sybil_6_year_score: float,
 ) -> EpiInput:
     """Build an :class:`EpiInput` from form data and the Sybil CT score.
 
     Args:
-        patient: Validated patient data from the input form.
+        individual: Validated individual data from the input form.
         sybil_6_year_score: The 6-year risk probability from Sybil (0-1).
 
     Returns:
         A ready-to-score :class:`EpiInput` instance.
 
     Raises:
-        KeyError: If the ethnicity code in *patient* is not in the mapping.
+        KeyError: If the ethnicity code in *individual* is not in the mapping.
     """
 
-    ethnicity_str = _ETHNICITY_MAP[patient.ethnicity]
+    ethnicity_str = _ETHNICITY_MAP[individual.ethnicity]
 
     return EpiInput(
-        age=patient.age,
-        bmi=patient.bmi,
-        copd=patient.copd,
-        education=patient.education,
+        age=individual.age,
+        bmi=individual.bmi,
+        copd=individual.copd,
+        education=individual.education,
         ethnicity=ethnicity_str,
-        family_history=patient.family_lc_history,
-        personal_history=patient.personal_cancer_history,
-        smoking_duration=patient.smoking_duration,
-        smoking_intensity=patient.smoking_intensity,
-        smoking_quit=patient.smoking_quit_time,
-        smoking_status=patient.smoking_status,
+        family_history=individual.family_lc_history,
+        personal_history=individual.personal_cancer_history,
+        smoking_duration=individual.smoking_duration,
+        smoking_intensity=individual.smoking_intensity,
+        smoking_quit=individual.smoking_quit_time,
+        smoking_status=individual.smoking_status,
         risk_sybil_6_year=sybil_6_year_score,
     )

@@ -12,10 +12,13 @@ import certifi
 import pandas as pd
 
 from app.controllers.base_controller import BaseController
-from app.models.patient_model import SybilInputData
+from app.models.individual_model import SybilInputData
 from app.utils.event_bus import AppEvent, EventBus
 from app.utils.helpers import validate_ct_path
-from app.utils.sybil_epi import calculate_sybil_epi_score, epi_input_from_patient_data
+from app.utils.sybil_epi import (
+    calculate_sybil_epi_score,
+    epi_input_from_individual_data,
+)
 from app.utils.sybil_inference import run_sybil_pipeline
 from app.utils.validators import BatchSybilRowParser, ParseError
 
@@ -133,7 +136,7 @@ class SybilController(BaseController):
         try:
             self._log(f"Sybil Scores {yearly}")
             self._log(json.dumps(asdict(self._pending)))
-            epi_in = epi_input_from_patient_data(self._pending, yearly[5])
+            epi_in = epi_input_from_individual_data(self._pending, yearly[5])
             epi = calculate_sybil_epi_score(epi_in)
         except Exception as exc:
             self._error(f"EPI scoring failed: {exc}")
@@ -149,7 +152,7 @@ class SybilController(BaseController):
         )
         self._set_state("idle")
 
-    def _row_to_patient(self, row) -> SybilInputData:
+    def _row_to_individual(self, row) -> SybilInputData:
         try:
             parsed = BatchSybilRowParser.parse(dict(row))
         except ParseError as exc:
@@ -171,7 +174,7 @@ class SybilController(BaseController):
             total = len(df)
 
             self._set_state("running_batch")
-            self._log(f"Starting batch run: {total} patients")
+            self._log(f"Starting batch run: {total} individuals")
 
             for i, row in df.iterrows():
                 self._emit(
@@ -196,9 +199,9 @@ class SybilController(BaseController):
                     break
 
                 try:
-                    patient = self._row_to_patient(row)
+                    individual = self._row_to_individual(row)
 
-                    path = Path(patient.ct_scan_dir)
+                    path = Path(individual.ct_scan_dir)
 
                     ok, msg = validate_ct_path(path)
                     if not ok:
@@ -211,10 +214,10 @@ class SybilController(BaseController):
                         )
                         continue
 
-                    self._log(f"Running inference on row {i + 1} for patient: ")
-                    self._log(json.dumps(asdict(patient)))
+                    self._log(f"Running inference on row {i + 1} for individual: ")
+                    self._log(json.dumps(asdict(individual)))
 
-                    epi = run_sybil_pipeline(self._model, patient)
+                    epi = run_sybil_pipeline(self._model, individual)
 
                     results.append(
                         {

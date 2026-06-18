@@ -13,7 +13,7 @@ from app.config.settings import (
     WARNING_COLOUR,
     WARNING_COLOUR_HOVER,
 )
-from app.models.patient_model import ModelValidationError, SybilInputData
+from app.models.individual_model import ModelValidationError, SybilInputData
 from app.utils.event_bus import AppEvent
 from app.utils.ui_config import (
     BUTTON_GAP,
@@ -169,7 +169,7 @@ class SybilView:
         self._subtitle.pack(anchor="w", pady=(0, SPACE_LG))
 
         # ─────────────────────────────────────────────────────────────
-        # Single patient UI
+        # Single individual UI
         # ─────────────────────────────────────────────────────────────
         self._single_frame = ctk.CTkFrame(
             self.container,
@@ -178,7 +178,7 @@ class SybilView:
         )
         self._single_frame.pack(fill="both", expand=True)
 
-        self._card("Demographics", self._build_patient, self._single_frame)
+        self._card("Demographics", self._build_individual, self._single_frame)
         self._card("Medical History", self._build_history, self._single_frame)
         self._card("Smoking History", self._build_smoking, self._single_frame)
         self._card("CT Scan", self._build_ct, self._single_frame)
@@ -204,7 +204,7 @@ class SybilView:
         ctk.CTkLabel(
             batch_card,
             text=(
-                "Upload a CSV containing patient metadata and CT scan folder paths.\n\n"
+                "Upload a CSV containing individual metadata and CT scan folder paths.\n\n"
                 "Required columns:\n"
                 "- age\n"
                 "- bmi\n"
@@ -313,7 +313,7 @@ class SybilView:
 
     # ─────────────────────────────── FORM SECTIONS ───────────────────────
 
-    def _build_patient(self, p: ctk.CTkFrame) -> None:
+    def _build_individual(self, p: ctk.CTkFrame) -> None:
         self._entry(p, "age", "Age (years)", self._age_var, self._age_error_var)
         self._entry(p, "bmi", "BMI (kg/m2)", self._bmi_var, self._bmi_error_var)
         self._dropdown(p, "Education", self._education_var, list(EDUCATION_OPTIONS))
@@ -687,7 +687,7 @@ class SybilView:
                 current,
                 total,
             )
-            self._overlay.set_stage(f"Running patient {current} of {total}")
+            self._overlay.set_stage(f"Running individual {current} of {total}")
 
         elif event.type == "log":
             if self._running and event.message:

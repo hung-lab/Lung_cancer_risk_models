@@ -22,7 +22,7 @@ hiddenimports = (
         "PIL.ImageTk",
         "PIL._tkinter_finder",
         "app.utils.sybil_worker",
-        "app.models.patient_model",
+        "app.models.individual_model",
         "app.utils.sybil_epi",
     ]
 )

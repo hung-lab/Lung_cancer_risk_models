@@ -61,7 +61,7 @@ hiddenimports = (
         # worker module must be explicitly included so the spawned
         # child process can import it from the frozen bundle
         "app.utils.sybil_worker",
-        "app.models.patient_model",
+        "app.models.individual_model",
         "app.utils.sybil_epi",
     ]
 )

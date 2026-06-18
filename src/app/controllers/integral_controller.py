@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 from app.controllers.base_controller import BaseController
-from app.models.patient_model import IntegralClinicalData
+from app.models.individual_model import IntegralClinicalData
 from app.utils.event_bus import AppEvent
 from app.utils.helpers import (
     InvalidFileError,
@@ -215,7 +215,7 @@ class IntegralController(BaseController):
 
         self._set_state("idle")
 
-    def _row_to_patient(self, row) -> IntegralClinicalData:
+    def _row_to_individual(self, row) -> IntegralClinicalData:
         try:
             parsed = BatchIntegralRowParser.parse(dict(row))
         except ParseError as exc:
@@ -237,7 +237,7 @@ class IntegralController(BaseController):
             total = len(df)
 
             self._set_state("running_batch")
-            self._log(f"Starting batch run: {total} patients")
+            self._log(f"Starting batch run: {total} individuals")
 
             for i, row in df.iterrows():
                 self._emit(
@@ -269,11 +269,11 @@ class IntegralController(BaseController):
                     break
 
                 try:
-                    patient = self._row_to_patient(row)
+                    individual = self._row_to_individual(row)
 
                     try:
-                        validate_file_path(Path(patient.image_file), "image_file")
-                        validate_file_path(Path(patient.mask_file), "mask_file")
+                        validate_file_path(Path(individual.image_file), "image_file")
+                        validate_file_path(Path(individual.mask_file), "mask_file")
                     except InvalidFileError as e:
                         self._warn(
                             f"Row {i + 1} skipped: {e.field_name} invalid ({e.reason})"
@@ -287,9 +287,9 @@ class IntegralController(BaseController):
                         )
                         continue
 
-                    self._log(f"Running inference on row {i + 1} for patient: ")
+                    self._log(f"Running inference on row {i + 1} for individual: ")
 
-                    prediction = run_inference_pipeline(patient)
+                    prediction = run_inference_pipeline(individual)
 
                     results.append(
                         {

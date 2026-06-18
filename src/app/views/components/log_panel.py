@@ -4,14 +4,10 @@ import json
 import customtkinter as ctk
 
 from app.config.settings import (
-    LEVEL_COLOURS,
-    LEVEL_PREFIX,
-    WARNING_COLOUR,
-    WARNING_COLOUR_HOVER,
-    INFO_COLOUR,
-    SUCCESS_COLOUR,
     ERROR_COLOUR,
     ERROR_COLOUR_HOVER,
+    LEVEL_COLOURS,
+    LEVEL_PREFIX,
 )
 from app.utils.event_bus import AppEvent
 from app.utils.ui_config import SPACE_MD, SPACE_SM, SPACE_XS
