@@ -1,6 +1,7 @@
 import os
 import platform
-import subprocess
+import subprocess  # nosec B404
+import tempfile
 from pathlib import Path
 
 import certifi
@@ -228,7 +229,7 @@ cat("integralrad OK\\n")
                     "R_LIBS_USER": str(r_lib),
                     "R_LIBS": str(r_lib),
                     "HOME": str(Path.home()),
-                    "TMPDIR": "/tmp",
+                    "TMPDIR": tempfile.gettempdir(),
                     # Prevent R from opening a browser for package vignettes
                     "R_BROWSER": "false",
                 }
