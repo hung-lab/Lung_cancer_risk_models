@@ -178,7 +178,7 @@ class SplashScreen:
                 self._integral_error = True
                 self._integral_status.configure(
                     text="✗ INTEGRAL-Radiomics install failed — see Activity Log. "
-                    "That tab will be unavailable.",
+                    "That feature will be unavailable.",
                     text_color=ERROR_COLOUR,
                 )
                 self._maybe_finish()
@@ -187,7 +187,7 @@ class SplashScreen:
                 self._integral_done = True
                 self._integral_error = True
                 self._integral_status.configure(
-                    text="✗ R not found — INTEGRAL tab will be unavailable.",
+                    text="✗ R not found — INTEGRAL-Radiomics will be unavailable.",
                     text_color=ERROR_COLOUR,
                 )
                 self._maybe_finish()

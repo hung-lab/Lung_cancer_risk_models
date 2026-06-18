@@ -97,35 +97,29 @@ class IntegralView:
     # ─────────────────────────────── UI SETUP ────────────────────────────
 
     def _setup_ui(self) -> None:
-        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_rowconfigure(0, weight=0)  # status
+        self.root.grid_rowconfigure(1, weight=1)  # main content
         self.root.grid_columnconfigure(0, weight=1)
 
         # ─────────────────────────────────────────────────────────────
-        # MODE SELECTOR
+        # Status Banner
         # ─────────────────────────────────────────────────────────────
-
-        top = ctk.CTkFrame(self.root, fg_color="transparent", border_width=0)
-        top.grid(
+        self._status_frame = ctk.CTkFrame(self.root)
+        self._status_frame.grid(
             row=0,
             column=0,
             sticky="ew",
             padx=SECTION_GAP_TOP,
-            pady=(SECTION_GAP_TOP, 0),
+            pady=(SPACE_XS, 0),
         )
-
-        ctk.CTkLabel(
-            top,
-            text="Run Mode",
-            font=ctk.CTkFont(size=14, weight="bold"),
-        ).pack(anchor="w", pady=(0, SPACE_XS))
-
-        self._mode_switch = ctk.CTkSegmentedButton(
-            top,
-            values=["single", "batch"],
-            variable=self._mode_var,
-            command=self._on_mode_changed,
+        self._status_label = ctk.CTkLabel(
+            self._status_frame,
+            text="",
+            justify="left",
+            anchor="w",
         )
-        self._mode_switch.pack(anchor="w")
+        self._status_label.pack(fill="x", padx=20, pady=20)
+        self._status_frame.grid_forget()
 
         # ─────────────────────────────────────────────────────────────
         # Scroll container
@@ -140,6 +134,27 @@ class IntegralView:
             pady=SECTION_GAP_BOTTOM,
         )
         self.container.grid_columnconfigure(0, weight=1)
+
+        # ─────────────────────────────────────────────────────────────
+        # MODE SELECTOR
+        # ─────────────────────────────────────────────────────────────
+
+        top = ctk.CTkFrame(self.container, fg_color="transparent", border_width=0)
+        top.pack(fill="x", pady=(10, 0), padx=0)
+
+        ctk.CTkLabel(
+            top,
+            text="Run Mode",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        ).pack(anchor="w", pady=(0, SPACE_XS))
+
+        self._mode_switch = ctk.CTkSegmentedButton(
+            top,
+            values=["single", "batch"],
+            variable=self._mode_var,
+            command=self._on_mode_changed,
+        )
+        self._mode_switch.pack(anchor="w")
 
         # ─────────────────────────────────────────────────────────────
         # Header
@@ -500,6 +515,30 @@ class IntegralView:
 
         _recurse(self.container)
 
+    # ─────────────────────────────── Banner Control ──────────────────────────────
+    def _show_unavailable(self, message: str) -> None:
+        self._status_label.configure(
+            text=message,
+            text_color=ERROR_COLOUR,
+        )
+
+        self._status_frame.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=SECTION_GAP_TOP,
+            pady=(SPACE_XS, 0),
+        )
+
+        self.run_button.configure(state="disabled")
+        self._set_widgets_state("disabled")
+
+    def _hide_unavailable(self) -> None:
+        self._status_frame.grid_forget()
+
+        self.run_button.configure(state="normal")
+        self._set_widgets_state("normal")
+
     # ─────────────────────────────── ACTIONS ──────────────────────────────
 
     def _browse(self, file_var, file_error) -> None:
@@ -720,6 +759,21 @@ class IntegralView:
             elif event.message in ("idle", "error"):
                 self._hide_overlay()
 
+        elif event.type == "integral_status":
+            if event.message == "R_missing":
+                self._show_unavailable(
+                    "INTEGRAL-Radiomics is unavailable.\n\nR installation not found."
+                )
+            elif event.message == "install_failed":
+                self._show_unavailable(
+                    "INTEGRAL-Radiomics is unavailable.\n\n"
+                    "The required R package could not be installed."
+                )
+            elif event.message in (
+                "ready",
+                "install_complete",
+            ):
+                self._hide_unavailable()
         # ───────────────────────────── RESULT ───────────────────────────────
         elif event.type == "radiomics_result":
             if isinstance(event.data, dict) and "output_path" in event.data:

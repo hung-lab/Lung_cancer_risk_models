@@ -3,7 +3,16 @@ import json
 
 import customtkinter as ctk
 
-from app.config.settings import LEVEL_COLOURS, LEVEL_PREFIX
+from app.config.settings import (
+    LEVEL_COLOURS,
+    LEVEL_PREFIX,
+    WARNING_COLOUR,
+    WARNING_COLOUR_HOVER,
+    INFO_COLOUR,
+    SUCCESS_COLOUR,
+    ERROR_COLOUR,
+    ERROR_COLOUR_HOVER,
+)
 from app.utils.event_bus import AppEvent
 from app.utils.ui_config import SPACE_MD, SPACE_SM, SPACE_XS
 
@@ -21,12 +30,25 @@ class LogPanel:
             row=0, column=0, sticky="ew", padx=SPACE_SM, pady=(SPACE_MD, SPACE_XS)
         )
         header.grid_columnconfigure(0, weight=1)
+        header.grid_columnconfigure(1, weight=0)
+        header.grid_columnconfigure(2, weight=0)
 
         ctk.CTkLabel(
             header,
             text="Activity Log",
             font=ctk.CTkFont(size=14, weight="bold"),
         ).grid(row=0, column=0, sticky="w")
+
+        self.copy_btn = ctk.CTkButton(
+            header,
+            text="Copy",
+            width=56,
+            height=24,
+            command=self.copy,
+            fg_color=ERROR_COLOUR,
+            hover_color=ERROR_COLOUR_HOVER,
+        )
+        self.copy_btn.grid(row=0, column=2, padx=(SPACE_XS, 0))
 
         ctk.CTkButton(
             header,
@@ -68,6 +90,21 @@ class LogPanel:
         self.box.configure(state="normal")
         self.box.delete("1.0", "end")
         self.box.configure(state="disabled")
+
+    def copy(self) -> None:
+        self.box.configure(state="normal")
+        text = self.box.get("1.0", "end-1c")
+        self.box.configure(state="disabled")
+
+        self.parent.clipboard_clear()
+        self.parent.clipboard_append(text)
+        self.parent.update()  # ensures clipboard persists
+
+        self.copy_btn.configure(text="✓ Copied", state="disabled")
+
+        self.parent.after(
+            1200, lambda: self.copy_btn.configure(text="Copy", state="normal")
+        )
 
     def update_tag_colours(self, mode: str):
         for level, colours in LEVEL_COLOURS.items():

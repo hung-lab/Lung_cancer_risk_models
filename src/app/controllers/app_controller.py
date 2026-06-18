@@ -1,4 +1,5 @@
 import os
+import platform
 import subprocess
 from pathlib import Path
 
@@ -75,6 +76,32 @@ class AppController(BaseController):
             pass
         return "jammy"
 
+    @staticmethod
+    def _cran_repo(self, CH):
+        system = platform.system().lower()
+
+        if system == "linux":
+            codename = self._ubuntu_codename()
+            ppm_url = (
+                f"https://packagemanager.posit.co/cran/__linux__/{codename}/latest"
+            )
+            self._log(f"Using PPM binary repo for Linux {codename}: {ppm_url}", data=CH)
+            return ppm_url
+
+        if system == "darwin":
+            ppm_url = "https://packagemanager.posit.co/cran/latest"
+            self._log(f"Using PPM CRAN repo for macOS: {ppm_url}", data=CH)
+            return ppm_url
+
+        if system == "windows":
+            ppm_url = "https://packagemanager.posit.co/cran/latest"
+            self._log(f"Using PPM CRAN repo for Windows: {ppm_url}", data=CH)
+            return ppm_url
+
+        ppm_url = "https://cloud.r-project.org"
+        self._log(f"Using fallback CRAN repo: {ppm_url}", data=CH)
+        return ppm_url
+
     def check_and_install_integral(self):
         """Check / install integralrad safely on app launch.
 
@@ -96,6 +123,7 @@ class AppController(BaseController):
                     data=CH,
                 )
                 self._emit(AppEvent(type="ui_state", message="R_missing"))
+                self._emit(AppEvent(type="integral_status", message="R_missing"))
                 return
 
             self._log(f"Using Rscript at: {rscript_path}", data=CH)
@@ -120,6 +148,7 @@ class AppController(BaseController):
                 self._emit(
                     AppEvent(type="ui_state", message="integral_radiomics_ready")
                 )
+                self._emit(AppEvent(type="integral_status", message="ready"))
                 return
 
             self._log("Installing integralrad (first run setup)…", data=CH)
@@ -128,14 +157,8 @@ class AppController(BaseController):
             r_lib = Path.home() / ".pulmorisk" / "r" / "library"
             r_lib.mkdir(parents=True, exist_ok=True)
 
-            # ── 4. Detect Ubuntu codename for PPM binary URL ──────────────
-            codename = self._ubuntu_codename()
-            ppm_url = (
-                f"https://packagemanager.posit.co/cran/__linux__/{codename}/latest"
-            )
-            self._log(
-                f"Using PPM binary repo for Ubuntu {codename}: {ppm_url}", data=CH
-            )
+            # ── 4. Detect PPM  URL by OS ──────────────
+            ppm_url = self._cran_repo()
 
             # ── 5. R install script ───────────────────────────────────────
             #
@@ -164,6 +187,10 @@ options(
     CRAN = "https://cloud.r-project.org"
   )
 )
+
+if (Sys.info()[["sysname"]] == "Darwin") {{
+    options(pkgType = "source")
+}}
 
 # ── Install pak if missing (pak itself comes as a binary from PPM) ─────────
 if (!requireNamespace("pak", quietly = TRUE)) {{
@@ -226,6 +253,7 @@ cat("integralrad OK\\n")
                     for line in e.stderr.strip().splitlines():
                         self._log(line, level="ERROR", data=CH)
                 self._emit(AppEvent(type="ui_state", message="install_failed"))
+                self._emit(AppEvent(type="integral_status", message="install_failed"))
                 return
 
             # ── 7. Verify CLI exists ──────────────────────────────────────
@@ -233,6 +261,7 @@ cat("integralrad OK\\n")
             if cli_path:
                 self._log(f"integralrad installed successfully at: {cli_path}", data=CH)
                 self._emit(AppEvent(type="ui_state", message="install_complete"))
+                self._emit(AppEvent(type="integral_status", message="install_complete"))
             else:
                 self._log(
                     "Install finished but integral-radiomics CLI not found in PATH",
@@ -240,8 +269,10 @@ cat("integralrad OK\\n")
                     data=CH,
                 )
                 self._emit(AppEvent(type="ui_state", message="install_failed"))
+                self._emit(AppEvent(type="integral_status", message="install_failed"))
 
         except Exception as exc:
             # Safety net — if anything unexpected throws, unblock the splash.
             self._log(f"Unexpected error during R setup: {exc}", level="ERROR", data=CH)
             self._emit(AppEvent(type="ui_state", message="install_failed"))
+            self._emit(AppEvent(type="integral_status", message="install_failed"))
