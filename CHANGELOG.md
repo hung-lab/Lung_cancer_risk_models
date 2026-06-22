@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.7](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.4.6...v1.4.7) (2026-06-22)
+
+
+### Bug Fixes
+
+* update some of the text on main page ([f2fd784](https://github.com/hung-lab/Lung_cancer_risk_models/commit/f2fd7843ce8164c3e86cf0226e45e04a2cafa751))
+
 ## [1.4.6](https://github.com/hung-lab/Lung_cancer_risk_models/compare/v1.4.5...v1.4.6) (2026-06-19)
 
 
